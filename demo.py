@@ -23,7 +23,7 @@ if __name__ == '__main__':
         matting = Matting(img_url, trimap_url, img_name)
 
         time_start = time.time()
-        matting.comatting()
+        alpha_matte = matting.comatting()
         print('img:%s, time used:%.4f s' % (img_name, time.time() - time_start))
 
         img_f, img_b = matting.img_fnb()
@@ -34,6 +34,6 @@ if __name__ == '__main__':
 
         cv2.imwrite(save_path + img_name + '_f.png', img_f)
         cv2.imwrite(save_path + img_name + '_b.png', img_b)
-        cv2.imwrite(save_path + img_name + '_alpha.png', matting.data.alpha_matte)
+        cv2.imwrite(save_path + img_name + '_alpha.png', alpha_matte)
         np.save(save_path + img_name + '_f', matting.data.sample_f)
         np.save(save_path + img_name + '_b', matting.data.sample_b)

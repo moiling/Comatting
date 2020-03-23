@@ -32,7 +32,7 @@ def evolution(f, b, win, data: MattingData):
         shuffle_id = np.arange(pop)
         np.random.shuffle(shuffle_id)
         mask = np.array([shuffle_id[:round(pop / 2)], shuffle_id[round(pop / 2):round(pop / 2) * 2]])
-        win = fit[mask[0]] > fit[mask[1]]
+        win = fit[mask[0]] < fit[mask[1]]
         lose = np.logical_not(win)
         winner = np.hstack([mask[0][win], mask[1][lose]])
         loser = np.hstack([mask[0][lose], mask[1][win]])
@@ -58,6 +58,7 @@ def evolution(f, b, win, data: MattingData):
         best_f[better] = f[better]
         best_b[better] = b[better]
         best_alpha[better] = alpha[better]
+        best_fit[better] = fit[better]
 
         fes += round(pop / 2)
 
