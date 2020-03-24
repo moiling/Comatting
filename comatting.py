@@ -36,7 +36,7 @@ class Comatting:
                 [y + 1 if y + 1 < self.data.height else y, x + 1 if x + 1 < self.data.width else x]
             ])
 
-    def matting(self):
+    def matting(self, max_fes):
         # F and B sample per each pixels, -1 means not initial, F/B areas use current F/B id to initial.
         sample_f = np.ones([self.data.height, self.data.width], 'int') * -1
         sample_b = np.ones([self.data.height, self.data.width], 'int') * -1
@@ -44,7 +44,9 @@ class Comatting:
         sample_b[self.data.isb] = range(self.data.b_size)
         # alpha = np.zeros(self.data.u_size, 'int')
         alpha = self.data.trimap.copy()
-        alpha = alpha.astype(int) / 255
+        alpha = alpha.astype(float) / 255
+
+        cost_c = np.zeros([self.data.height, self.data.width], 'int')
 
         time_start = 0
         for u_id, window in enumerate(self.__windows(self.data.u_size)):
@@ -57,11 +59,12 @@ class Comatting:
             f[f == -1] = np.random.randint(0, self.data.f_size, np.sum(f == -1))
             b[b == -1] = np.random.randint(0, self.data.b_size, np.sum(b == -1))
 
-            f, b, win_alpha = evolution(f, b, window, self.data)
+            f, b, win_alpha, c = evolution(f, b, window, self.data, max_fes)
             sample_f[window[:, 0], window[:, 1]] = f
             sample_b[window[:, 0], window[:, 1]] = b
             # alpha[u_id] = win_alpha[4]
             alpha[window[:, 0], window[:, 1]] = win_alpha
+            cost_c[window[:, 0], window[:, 1]] = c
 
             if u_id % 100 == 99:
                 print('{:>5.2f}%{:>7.2f}s'.format((u_id + 1) / self.data.u_size * 100, time.time() - time_start))
@@ -71,4 +74,5 @@ class Comatting:
         self.data.alpha_matte = alpha * 255
         self.data.sample_f = sample_f[self.data.isu]
         self.data.sample_b = sample_b[self.data.isu]
+        self.data.cost_c = cost_c[self.data.isu]
 

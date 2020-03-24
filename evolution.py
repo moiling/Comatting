@@ -8,7 +8,7 @@ from fitness import fitness
 import numpy as np
 
 
-def evolution(f, b, window, data: MattingData, max_fes=1e3):
+def evolution(f, b, window, data: MattingData, max_fes):
     pop = len(f)
     rgb_u = data.img[window[:, 0], window[:, 1]].astype(int)
     s_u = window
@@ -18,12 +18,13 @@ def evolution(f, b, window, data: MattingData, max_fes=1e3):
     v_f = np.zeros(pop)
     v_b = np.zeros(pop)
 
-    fit, alpha = fitness(data.rgb_f[f], data.rgb_b[b], data.s_f[f], data.s_b[b], rgb_u, s_u, md_fpu, md_bpu)
+    alpha, fit, c, _, _ = fitness(data.rgb_f[f], data.rgb_b[b], data.s_f[f], data.s_b[b], rgb_u, s_u, md_fpu, md_bpu)
 
     best_f = f
     best_b = b
     best_alpha = alpha
     best_fit = fit
+    best_c = c
 
     fes = pop
 
@@ -49,16 +50,20 @@ def evolution(f, b, window, data: MattingData, max_fes=1e3):
         b[b >= data.b_size] = data.b_size - 1
         b[b < 0] = 0
 
-        fit_loser, alpha_loser = fitness(data.rgb_f[f[loser]], data.rgb_b[b[loser]], data.s_f[f[loser]],
-                                         data.s_b[b[loser]], rgb_u[loser], s_u[loser], md_fpu[loser], md_bpu[loser])
+        alpha_loser, fit_loser, c_loser, _, _ \
+            = fitness(data.rgb_f[f[loser]], data.rgb_b[b[loser]], data.s_f[f[loser]],
+                      data.s_b[b[loser]], rgb_u[loser], s_u[loser], md_fpu[loser],
+                      md_bpu[loser])
         fit[loser] = fit_loser
         alpha[loser] = alpha_loser
+        c[loser] = c_loser
 
         better = fit < best_fit
         best_f[better] = f[better]
         best_b[better] = b[better]
         best_alpha[better] = alpha[better]
         best_fit[better] = fit[better]
+        best_c[better] = c[better]
 
         fes += round(pop / 2)
 
@@ -66,12 +71,14 @@ def evolution(f, b, window, data: MattingData, max_fes=1e3):
     for i in range(pop):
         f_i = np.tile(f[i], pop)
         b_i = np.tile(b[i], pop)
-        fit_i, alpha_i = fitness(data.rgb_f[f_i], data.rgb_b[b_i], data.s_f[f_i], data.s_b[b_i],
-                                 rgb_u, s_u, md_fpu, md_bpu)
+        alpha_i, fit_i, c_i, _, _ = \
+            fitness(data.rgb_f[f_i], data.rgb_b[b_i], data.s_f[f_i], data.s_b[b_i], rgb_u, s_u, md_fpu, md_bpu)
+
         better = fit_i < best_fit
         best_fit[better] = fit_i[better]
         best_f[better] = f_i[better]
         best_b[better] = b_i[better]
         best_alpha[better] = alpha_i[better]
+        best_c[better] = c_i[better]
 
-    return best_f, best_b, best_alpha
+    return best_f, best_b, best_alpha, best_c

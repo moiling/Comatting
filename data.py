@@ -26,7 +26,7 @@ class MattingData:
 
         # is:[height, width], bool; rgb:[size, 3-channels], int64, 0-255; s:[size, 2-axis], int64
         self.isf, self.isb, self.isu, self.rgb_f, self.rgb_b, self.rgb_u, self.s_f, self.s_b, self.s_u = self.__tri_info()
-        self.height, self.width = self.img.shape[0], self.img.shape[1]
+        self.height, self.width, self.color_channel = self.img.shape[0], self.img.shape[1], self.img.shape[2]
         self.u_size, self.f_size, self.b_size = len(self.rgb_u), len(self.rgb_f), len(self.rgb_b)
         # min distance to F\B.
         self.min_dist_f = distance_transform_edt(np.logical_not(self.isf))
@@ -34,8 +34,10 @@ class MattingData:
         # [u_size, 1-id]
         self.sample_f, self.sample_b = [], []
         self.img_f, self.img_b = self.img.copy(), self.img.copy()
+        self.cost_c = np.zeros(self.u_size)
         # result
         self.alpha_matte = []
+        self.alpha_matte_smoothed = []
 
     def __tri_info(self):
         # [height, width], bool
@@ -56,3 +58,9 @@ class MattingData:
     def img_fnb(self):
         self.img_f[self.s_u[:, 0], self.s_u[:, 1]] = self.rgb_f[self.sample_f]
         self.img_b[self.s_u[:, 0], self.s_u[:, 1]] = self.rgb_b[self.sample_b]
+
+    def confidence(self):
+        mu = 1
+        f = np.ones([self.height, self.width])
+        f[self.isu] = np.exp(-self.cost_c / 2 * mu ** 2)
+        return f

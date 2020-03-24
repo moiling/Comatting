@@ -41,3 +41,9 @@ loser = random_pairs[0] * ~win + random_pairs[1] * win
 ```
 其他修改：
 1. 把shuffle函数换成了permutation函数，虽然没有变化，只有在很大的时候才能体现出速度优势，现在才9个数，速度降不下来。
+
+试着把评价中F和B合并成X，结果速度还不如分开。
+
+
+## v0.3
+写了个平滑……MATLAB转Python是真的难，还不知道哪出错了，改一天。

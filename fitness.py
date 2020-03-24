@@ -20,4 +20,4 @@ def fitness(rgb_f, rgb_b, s_f, s_b, rgb_u, s_u, min_dist_fpu, min_dist_bpu):
     cost_sb = np.sqrt(np.sum(np.square(s_b - s_u), axis=1)) / (min_dist_bpu + 0.01)
     fit = (cost_c + cost_sf + cost_sb)
 
-    return fit, alpha
+    return alpha, fit, cost_c, cost_sf, cost_sb
