@@ -8,13 +8,12 @@ from fitness import fitness
 import numpy as np
 
 
-def evolution(f, b, win, data: MattingData):
-    max_fes = 1e3
+def evolution(f, b, window, data: MattingData, max_fes=1e3):
     pop = len(f)
-    rgb_u = data.img[win[:, 0], win[:, 1]].astype(int)
-    s_u = win
-    md_fpu = data.min_dist_f[win[:, 0], win[:, 1]]
-    md_bpu = data.min_dist_b[win[:, 0], win[:, 1]]
+    rgb_u = data.img[window[:, 0], window[:, 1]].astype(int)
+    s_u = window
+    md_fpu = data.min_dist_f[window[:, 0], window[:, 1]]
+    md_bpu = data.min_dist_b[window[:, 0], window[:, 1]]
 
     v_f = np.zeros(pop)
     v_b = np.zeros(pop)
@@ -29,16 +28,17 @@ def evolution(f, b, win, data: MattingData):
     fes = pop
 
     while fes < max_fes:
-        shuffle_id = np.arange(pop)
-        np.random.shuffle(shuffle_id)
-        mask = np.array([shuffle_id[:round(pop / 2)], shuffle_id[round(pop / 2):round(pop / 2) * 2]])
-        win = fit[mask[0]] < fit[mask[1]]
-        lose = np.logical_not(win)
-        winner = np.hstack([mask[0][win], mask[1][lose]])
-        loser = np.hstack([mask[0][lose], mask[1][win]])
+        shuffle_id = np.random.permutation(pop)
+        random_pairs = np.array([shuffle_id[:round(pop / 2)], shuffle_id[round(pop / 2):round(pop / 2) * 2]])
 
-        v_f[loser] = np.random.rand(round(pop / 2)) * v_f[loser] + alpha[winner] * np.random.rand(round(pop / 2)) * (f[winner] - f[loser])
-        v_b[loser] = np.random.rand(round(pop / 2)) * v_b[loser] + (1 - alpha[winner]) * np.random.rand(round(pop / 2)) * (f[winner] - f[loser])
+        win = fit[random_pairs[0]] < fit[random_pairs[1]]
+        winner = random_pairs[0] * win + random_pairs[1] * ~win
+        loser = random_pairs[0] * ~win + random_pairs[1] * win
+
+        v_random = np.random.rand(round(pop / 2))
+        d_random = np.random.rand(round(pop / 2))
+        v_f[loser] = v_random * v_f[loser] + alpha[winner] * d_random * (f[winner] - f[loser])
+        v_b[loser] = v_random * v_b[loser] + (1 - alpha[winner]) * d_random * (b[winner] - b[loser])
 
         f[loser] = f[loser] + v_f[loser]
         b[loser] = b[loser] + v_b[loser]

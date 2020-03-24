@@ -10,11 +10,11 @@ import numpy as np
 from matting import Matting
 
 root_path = '/Users/moi/Documents/Code/PycharmProjects/ColorSpaceMatting/data/'
-version_name, resize_name = 'v0.1', '/'
+version_name, resize_name = 'v0.2', '/'
 
 if __name__ == '__main__':
 
-    # for img_name in ['elephant', 'donkey', 'doll', 'net', 'pineapple', 'plant', 'plasticbag', 'troll']:
+    # for img_name in ['GT14', 'elephant', 'donkey', 'doll', 'net', 'pineapple', 'plant', 'plasticbag', 'troll']:
     for img_name in ['GT14']:
         img_url = root_path + 'input_lowres/' + resize_name + img_name + '.png'
         trimap_url = root_path + 'trimap_lowres/Trimap1/' + resize_name + img_name + '.png'

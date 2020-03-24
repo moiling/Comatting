@@ -22,3 +22,22 @@ fit = (cost_c + cost_sf + cost_sb)
 ```
 最后采用搜索过程中每个个体的最优解，并用每个个体的最优解套在其他个体身上，看看是否有更优的解（9x9）。
 
+
+## v0.2
+- 2020.3.24
+
+BUG FIX:
+1. B方向学习写错成了F分量了，且F\B分量随机不同，现统一。
+```python
+v_random = np.random.rand(round(pop / 2))
+d_random = np.random.rand(round(pop / 2))
+v_f[loser] = v_random * v_f[loser] + alpha[winner] * d_random * (f[winner] - f[loser])
+v_b[loser] = v_random * v_b[loser] + (1 - alpha[winner]) * d_random * (b[winner] - b[loser])
+```
+2. 坏的向好的学习，学习的不是自己对应的好的……现修改如CSO，还提速了。
+```python
+winner = random_pairs[0] * win + random_pairs[1] * ~win
+loser = random_pairs[0] * ~win + random_pairs[1] * win
+```
+其他修改：
+1. 把shuffle函数换成了permutation函数，虽然没有变化，只有在很大的时候才能体现出速度优势，现在才9个数，速度降不下来。
