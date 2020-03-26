@@ -24,8 +24,8 @@ def vanilla_fitness(rgb_f, rgb_b, s_f, s_b, rgb_u, s_u, min_dist_fpu, min_dist_b
         alpha[alpha > 1] = 1
         # Chromatic distortion
         cost_c = np.sqrt(
-            np.sum(np.square(rgb_u - (alpha[:, np.newaxis] * rgb_f + (1 - alpha[:, np.newaxis]) * rgb_b)),
-                   axis=value_axis))
+            np.sum(np.square(rgb_u - (np.expand_dims(alpha, axis=value_axis) * rgb_f + (
+                    1 - np.expand_dims(alpha, axis=value_axis)) * rgb_b)), axis=value_axis))
         # Spatial cost
         cost_sf = np.sqrt(np.sum(np.square(s_f - s_u), axis=value_axis)) / (min_dist_fpu + 0.01)
         cost_sb = np.sqrt(np.sum(np.square(s_b - s_u), axis=value_axis)) / (min_dist_bpu + 0.01)

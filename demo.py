@@ -12,12 +12,12 @@ from core.matting import Matting
 root_path = '/Users/moi/Documents/Code/PycharmProjects/ColorSpaceMatting/data'
 version_name, resize_name = 'v0.3', ''
 func_name = 'random_matting'
-max_fes = 5e3
+max_fes = 1e3
 
 if __name__ == '__main__':
 
-    # for img_name in ['elephant', 'donkey', 'doll', 'net', 'pineapple', 'plant', 'plasticbag', 'troll']:
-    for img_name in ['GT14']:
+    for img_name in ['elephant', 'donkey', 'doll', 'net', 'pineapple', 'plant', 'plasticbag', 'troll']:
+        # for img_name in ['GT14']:
         img_url = '{}/input_lowres/{}/{}.png'.format(root_path, resize_name, img_name)
         trimap_url = '{}/trimap_lowres/Trimap1/{}/{}.png'.format(root_path, resize_name, img_name)
         out_url = './out'
