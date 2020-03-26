@@ -6,8 +6,8 @@
 from scipy.sparse import spdiags
 from scipy.sparse.linalg import spsolve
 
-from data import MattingData
-from laplacian import laplacian
+from ..data import MattingData
+from .laplacian import laplacian
 import numpy as np
 
 

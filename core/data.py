@@ -64,3 +64,20 @@ class MattingData:
         f = np.ones([self.height, self.width])
         f[self.isu] = np.exp(-self.cost_c / 2 * mu ** 2)
         return f
+
+    def add_outline(self, img, width, f_line_color, b_line_color):
+        if img is None:
+            raise Exception('ERROR: No image. Please check your image.')
+        if img.shape[:2] != self.trimap.shape:
+            raise Exception('ERROR: The trimap isn\'t fit the image. Please check: img {}, trimap {}'
+                            .format(self.img.shape[:2], self.trimap.shape))
+
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (width * 2 + 1, width * 2 + 1))
+        dilate_u = cv2.dilate(self.isu.astype('uint8'), kernel)
+        dilate_u = dilate_u == 1
+        outline_f = np.logical_and(self.isf, dilate_u)
+        outline_b = np.logical_and(self.isb, dilate_u)
+        outline_img = img.copy()
+        outline_img[outline_f] = f_line_color
+        outline_img[outline_b] = b_line_color
+        return outline_img

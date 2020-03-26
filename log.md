@@ -47,3 +47,4 @@ loser = random_pairs[0] * ~win + random_pairs[1] * win
 
 ## v0.3
 写了个平滑……MATLAB转Python是真的难，还不知道哪出错了，改一天。
+轮廓标注

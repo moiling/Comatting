@@ -5,10 +5,10 @@
 # @File    : comatting.py
 import time
 
-from data import MattingData
+from ..data import MattingData
 import numpy as np
 
-from evolution import evolution
+from .co_evolution import co_evolution
 
 
 class Comatting:
@@ -59,7 +59,7 @@ class Comatting:
             f[f == -1] = np.random.randint(0, self.data.f_size, np.sum(f == -1))
             b[b == -1] = np.random.randint(0, self.data.b_size, np.sum(b == -1))
 
-            f, b, win_alpha, c = evolution(f, b, window, self.data, max_fes)
+            f, b, win_alpha, c = co_evolution(f, b, window, self.data, max_fes)
             sample_f[window[:, 0], window[:, 1]] = f
             sample_b[window[:, 0], window[:, 1]] = b
             # alpha[u_id] = win_alpha[4]

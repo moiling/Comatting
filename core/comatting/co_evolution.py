@@ -2,13 +2,17 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2020/3/23 16:06
 # @Author  : moiling
-# @File    : evolution.py
-from data import MattingData
-from fitness import fitness
+# @File    : co_evolution.py
+from ..data import MattingData
+from ..fitness import vanilla_fitness
 import numpy as np
 
 
-def evolution(f, b, window, data: MattingData, max_fes):
+def co_evolution(f, b, window, data: MattingData, max_fes):
+    # f/b id must be integer.
+    f = f.astype(int)
+    b = b.astype(int)
+
     pop = len(f)
     rgb_u = data.img[window[:, 0], window[:, 1]].astype(int)
     s_u = window
@@ -18,7 +22,8 @@ def evolution(f, b, window, data: MattingData, max_fes):
     v_f = np.zeros(pop)
     v_b = np.zeros(pop)
 
-    alpha, fit, c, _, _ = fitness(data.rgb_f[f], data.rgb_b[b], data.s_f[f], data.s_b[b], rgb_u, s_u, md_fpu, md_bpu)
+    alpha, fit, c, _, _ = \
+        vanilla_fitness(data.rgb_f[f], data.rgb_b[b], data.s_f[f], data.s_b[b], rgb_u, s_u, md_fpu, md_bpu)
 
     best_f = f
     best_b = b
@@ -51,9 +56,9 @@ def evolution(f, b, window, data: MattingData, max_fes):
         b[b < 0] = 0
 
         alpha_loser, fit_loser, c_loser, _, _ \
-            = fitness(data.rgb_f[f[loser]], data.rgb_b[b[loser]], data.s_f[f[loser]],
-                      data.s_b[b[loser]], rgb_u[loser], s_u[loser], md_fpu[loser],
-                      md_bpu[loser])
+            = vanilla_fitness(data.rgb_f[f[loser]], data.rgb_b[b[loser]], data.s_f[f[loser]],
+                              data.s_b[b[loser]], rgb_u[loser], s_u[loser], md_fpu[loser],
+                              md_bpu[loser])
         fit[loser] = fit_loser
         alpha[loser] = alpha_loser
         c[loser] = c_loser
@@ -72,7 +77,7 @@ def evolution(f, b, window, data: MattingData, max_fes):
         f_i = np.tile(f[i], pop)
         b_i = np.tile(b[i], pop)
         alpha_i, fit_i, c_i, _, _ = \
-            fitness(data.rgb_f[f_i], data.rgb_b[b_i], data.s_f[f_i], data.s_b[b_i], rgb_u, s_u, md_fpu, md_bpu)
+            vanilla_fitness(data.rgb_f[f_i], data.rgb_b[b_i], data.s_f[f_i], data.s_b[b_i], rgb_u, s_u, md_fpu, md_bpu)
 
         better = fit_i < best_fit
         best_fit[better] = fit_i[better]

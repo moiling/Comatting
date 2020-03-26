@@ -3,7 +3,7 @@
 # @Time    : 2020/3/24 15:18
 # @Author  : moiling
 # @File    : laplacian.py
-from data import MattingData
+from ..data import MattingData
 import numpy as np
 import cv2
 from scipy.sparse import csr_matrix, spdiags

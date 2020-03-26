@@ -7,24 +7,25 @@ import os
 import time
 import cv2
 import numpy as np
-from matting import Matting
+from core.matting import Matting
 
-root_path = '/Users/moi/Documents/Code/PycharmProjects/ColorSpaceMatting/data/'
-version_name, resize_name = 'v0.3', '/'
-max_fes = 2e1
+root_path = '/Users/moi/Documents/Code/PycharmProjects/ColorSpaceMatting/data'
+version_name, resize_name = 'v0.3', ''
+func_name = 'random_matting'
+max_fes = 5e3
 
 if __name__ == '__main__':
 
-    for img_name in ['GT14', 'elephant', 'donkey', 'doll', 'net', 'pineapple', 'plant', 'plasticbag', 'troll']:
-        # for img_name in ['GT14']:
-        img_url = root_path + 'input_lowres/' + resize_name + img_name + '.png'
-        trimap_url = root_path + 'trimap_lowres/Trimap1/' + resize_name + img_name + '.png'
-        out_url = './out/'
+    # for img_name in ['elephant', 'donkey', 'doll', 'net', 'pineapple', 'plant', 'plasticbag', 'troll']:
+    for img_name in ['GT14']:
+        img_url = '{}/input_lowres/{}/{}.png'.format(root_path, resize_name, img_name)
+        trimap_url = '{}/trimap_lowres/Trimap1/{}/{}.png'.format(root_path, resize_name, img_name)
+        out_url = './out'
 
         matting = Matting(img_url, trimap_url, img_name)
 
         time_start = time.time()
-        alpha_matte = matting.comatting(max_fes)
+        alpha_matte = matting.matting(func_name=func_name, max_fes=max_fes)
         print('img:{}, matting time used:{:.4f}s'.format(img_name, time.time() - time_start))
 
         time_start = time.time()
@@ -33,14 +34,23 @@ if __name__ == '__main__':
 
         img_f, img_b = matting.img_fnb()
 
-        save_path = out_url + version_name + '/{:.0e}/'.format(max_fes) + resize_name
-        if not os.path.exists(save_path):
-            os.makedirs(save_path)
+        save_pic_path = '{}/{}/{}/{:.0e}/{}'.format(out_url, version_name, func_name, max_fes, resize_name)
+        save_data_path = '{}/data/'.format(save_pic_path)
+        if not os.path.exists(save_pic_path):
+            os.makedirs(save_pic_path)
+        if not os.path.exists(save_data_path):
+            os.makedirs(save_data_path)
 
-        cv2.imwrite(save_path + img_name + '_f.png', img_f)
-        cv2.imwrite(save_path + img_name + '_b.png', img_b)
-        cv2.imwrite(save_path + img_name + '_alpha.png', alpha_matte)
-        cv2.imwrite(save_path + img_name + '_alpha_smoothed.png', alpha_matte_smoothed)
-        np.save(save_path + img_name + '_f', matting.data.sample_f)
-        np.save(save_path + img_name + '_b', matting.data.sample_b)
-        np.save(save_path + img_name + '_cost_c', matting.data.cost_c)
+        cv2.imwrite('{}/{}_f.png'.format(save_pic_path, img_name), img_f)
+        cv2.imwrite('{}/{}_b.png'.format(save_pic_path, img_name), img_b)
+        cv2.imwrite('{}/{}_alpha.png'.format(save_pic_path, img_name), alpha_matte)
+        cv2.imwrite('{}/{}_alpha_smoothed.png'.format(save_pic_path, img_name), alpha_matte_smoothed)
+        np.save('{}/{}_f'.format(save_data_path, img_name), matting.data.sample_f)
+        np.save('{}/{}_b'.format(save_data_path, img_name), matting.data.sample_b)
+        np.save('{}/{}_cost_c'.format(save_data_path, img_name), matting.data.cost_c)
+
+        # outline
+        outline_f = matting.outline(img_f)
+        outline_b = matting.outline(img_b)
+        cv2.imwrite('{}/{}_outline_f.png'.format(save_pic_path, img_name), outline_f)
+        cv2.imwrite('{}/{}_outline_b.png'.format(save_pic_path, img_name), outline_b)
