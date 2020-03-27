@@ -46,6 +46,23 @@ loser = random_pairs[0] * ~win + random_pairs[1] * win
 
 
 ## v0.3
+- 2020.3.24
+
 写了个平滑……MATLAB转Python是真的难，还不知道哪出错了，改一天。
+
+- 2020.3.25
+
 轮廓标注
-random matting（无重复随机）
+
+- 2020.3.26
+
+random matting（无重复随机），效果还不错，可以作为基线标准。<br/>
+
+- 2020.3.26-27
+
+最普通版本的color space matting，类似CSO的学习机制，从FB空间学习转为在RGB空间学习，转换耗时严重<br/>
+单点迭代，决策变量为[unique_F,unique_B]，转换离自己最近的F,B id进行Fitness计算，重新计算cost_c，不用FF'近似<br/>
+学习时，学习优秀个体的RGB位置，然后映射回unique_F,unique_B，时间未做优化。<br/>
+color space映射使用KNN，比grid data快10倍以上。<br/>
+unique_F/B id转F/B id的时，临时找最近的F/B，耗时严重。<br/>
+一开始代码写错了，导致最终结果alpha几乎都是0，但smooth结果却异常好，难道smooth本身也是抠图方法？传播？

@@ -11,10 +11,12 @@ from .data import MattingData
 
 
 class Matting:
+    default_max_fes = 1e3
+
     def __init__(self, img_url, trimap_url, img_name=''):
         self.data = MattingData(img_url, trimap_url, img_name)
 
-    def matting(self, func_name='comatting', max_fes=1e3):
+    def matting(self, func_name='comatting', max_fes=default_max_fes):
         if func_name == 'comatting':
             return self.comatting(max_fes)
         if func_name == 'random_matting':
@@ -24,15 +26,15 @@ class Matting:
 
         raise Exception('ERROR: no matting function named {}.'.format(func_name))
 
-    def comatting(self, max_fes=1e3):
+    def comatting(self, max_fes=default_max_fes):
         Comatting(self.data).matting(max_fes)
         return self.data.alpha_matte
 
-    def color_space_matting(self, max_fes=1e3):
+    def color_space_matting(self, max_fes=default_max_fes):
         ColorSpaceMatting(self.data).matting(max_fes)
         return self.data.alpha_matte
 
-    def random_matting(self, max_fes=1e3):
+    def random_matting(self, max_fes=default_max_fes):
         RandomMatting(self.data).matting(max_fes)
         return self.data.alpha_matte
 

@@ -9,7 +9,7 @@ import numpy as np
 def vanilla_fitness(rgb_f, rgb_b, s_f, s_b, rgb_u, s_u, min_dist_fpu, min_dist_bpu):
     """
     fitness function of global matting.
-    :params [num, d]
+    :params [num, d] => multi: f/b:[pop_n, u_n, d], u:[u_n, d]
     """
     # get rgb/s' axis. rgb and s' axis must be same.
     if rgb_f.ndim != rgb_b.ndim or rgb_f.ndim != s_f.ndim or rgb_f.ndim != s_b.ndim:

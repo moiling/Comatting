@@ -15,7 +15,7 @@ from ..fitness import vanilla_fitness
 class RandomMatting:
     def __init__(self, data: MattingData):
         self.data = data
-        self.max_compute_epoch = 1e7
+        self.max_epoch_points = 1e7
 
     def matting(self, max_fes):
         sample_f = np.zeros(self.data.u_size, 'int')
@@ -23,7 +23,7 @@ class RandomMatting:
         alpha = np.zeros(self.data.u_size)
         cost_c = np.zeros(self.data.u_size)
 
-        cut_u = np.array_split(range(self.data.u_size), max_fes * self.data.u_size / self.max_compute_epoch + 1)
+        cut_u = np.array_split(range(self.data.u_size), max_fes * self.data.u_size / self.max_epoch_points + 1)
 
         print('epoch:{}'.format(len(cut_u)))
         for us in cut_u:
