@@ -3,6 +3,7 @@
 # @Time    : 2020/3/23 13:12
 # @Author  : moiling
 # @File    : matting.py
+from .color_closely_segmentation.color_closely_segmentation import ColorCloselySegmentation
 from .color_space_matting.color_space_matting import ColorSpaceMatting
 from .random_matting.random_matting import RandomMatting
 from .smoothing import smoothing
@@ -25,6 +26,9 @@ class Matting:
             return self.color_space_matting(max_fes)
 
         raise Exception('ERROR: no matting function named {}.'.format(func_name))
+
+    def color_closely_segmentation(self):
+        return ColorCloselySegmentation(self.data).segment()
 
     def comatting(self, max_fes=default_max_fes):
         Comatting(self.data).matting(max_fes)

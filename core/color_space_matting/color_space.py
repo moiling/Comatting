@@ -61,6 +61,19 @@ class ColorSpace:
         rgb[np.logical_or(np.min(rgb, axis=1) < 0, np.max(rgb, axis=1) > 255)] = [255, 255, 256]
         return rgb_space[rgb[:, 0] * 256 * 256 + rgb[:, 1] * 256 + rgb[:, 2]]
 
+    @staticmethod
+    def rgb2unique_color_id(rgb, rgb_space):
+        return rgb_space[rgb[0] * 256 * 256 + rgb[1] * 256 + rgb[2]]
+
+    @staticmethod
+    def nearest_color_dist(rgb, rgb_dist):
+        return rgb_dist[rgb[0] * 256 * 256 + rgb[1] * 256 + rgb[2]]
+
+    @staticmethod
+    def multi_nearest_color_dist(rgb, rgb_dist):
+        rgb[np.logical_or(np.min(rgb, axis=1) < 0, np.max(rgb, axis=1) > 255)] = [255, 255, 256]
+        return rgb_dist[rgb[:, 0] * 256 * 256 + rgb[:, 1] * 256 + rgb[:, 2]]
+
     def u_color2n_id_f(self, unique_color_id, u):
         return self.unique_color2nearest_id(unique_color_id, self.unique_color2id_f, self.data.s_f, u)
 
