@@ -11,7 +11,7 @@ from core.matting import Matting
 
 root_path = '/Users/moi/Documents/Code/PycharmProjects/ColorSpaceMatting/data'
 version_name, resize_name = 'v0.3', ''
-func_name = 'color_space_matting'
+func_name = 'vanilla_matting'
 max_fes = 1e3
 
 if __name__ == '__main__':

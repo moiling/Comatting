@@ -9,6 +9,8 @@ from .random_matting.random_matting import RandomMatting
 from .smoothing import smoothing
 from .comatting.comatting import Comatting
 from .data import MattingData
+from .spatial_matting.spatial_matting import SpatialMatting
+from .vanilla_matting.vanilla_matting import VanillaMatting
 
 
 class Matting:
@@ -24,8 +26,20 @@ class Matting:
             return self.random_matting(max_fes)
         if func_name == 'color_space_matting':
             return self.color_space_matting(max_fes)
+        if func_name == 'spatial_matting':
+            return self.spatial_matting(max_fes)
+        if func_name == 'vanilla_matting':
+            return self.vanilla_matting(max_fes)
 
         raise Exception('ERROR: no matting function named {}.'.format(func_name))
+
+    def vanilla_matting(self, max_fes=default_max_fes):
+        VanillaMatting(self.data).matting(max_fes)
+        return self.data.alpha_matte
+
+    def spatial_matting(self, max_fes=default_max_fes):
+        SpatialMatting(self.data).matting(max_fes)
+        return self.data.alpha_matte
 
     def color_closely_segmentation(self):
         return ColorCloselySegmentation(self.data).segment()
