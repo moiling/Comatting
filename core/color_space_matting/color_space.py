@@ -18,7 +18,7 @@ class ColorSpace:
     Now only use RGB space.
     """
 
-    def __init__(self, data: MattingData, log=True, save_cache=True):
+    def __init__(self, data: MattingData, log=False, save_cache=False):
         self.data = data
         self.unique_color_f, self.unique_color2id_f = self.unique_color(self.data.rgb_f)
         self.unique_color_b, self.unique_color2id_b = self.unique_color(self.data.rgb_b)
@@ -75,17 +75,18 @@ class ColorSpace:
         return rgb_dist[rgb[:, 0] * 256 * 256 + rgb[:, 1] * 256 + rgb[:, 2]]
 
     def u_color2n_id_f(self, unique_color_id, u):
-        return self.unique_color2nearest_id(unique_color_id, self.unique_color2id_f, self.data.s_f, u)
+        return self.uid2nid(unique_color_id, self.unique_color2id_f, self.data.s_f, self.data.s_u[u])
 
     def u_color2n_id_b(self, unique_color_id, u):
-        return self.unique_color2nearest_id(unique_color_id, self.unique_color2id_b, self.data.s_b, u)
+        return self.uid2nid(unique_color_id, self.unique_color2id_b, self.data.s_b, self.data.s_u[u])
 
-    def unique_color2nearest_id(self, unique_color_id, unique_color2id, s, u):
+    @staticmethod
+    def uid2nid(unique_color_id, unique_color2id, s, s_u):
         """
-        :param unique_color_id: such as unique_color_f, shape=(uc_n, d)
+        :param unique_color_id: such as unique_color_f_id, shape=(uc_n,)
         :param unique_color2id: such as unique_color2id_f
         :param s    : such as data.s_f, shape=(f_n, d)
-        :param u    : u_id, a integer
+        :param s_u  : only one u, shape=(1, d)
         :return: the nearest color id in rgb_f of the given unique color. shape=(uc_n,)
         """
         min_distance = np.ones(len(unique_color_id)) * 1e5
@@ -93,7 +94,7 @@ class ColorSpace:
 
         for uc_id in range(len(unique_color_id)):
             for c_id in unique_color2id[unique_color_id[uc_id]]:
-                distance = np.sqrt(np.sum(np.square(s[c_id] - self.data.s_u[u])))
+                distance = np.sqrt(np.sum(np.square(s[c_id] - s_u)))
                 if distance < min_distance[uc_id]:
                     min_distance[uc_id] = distance
                     nearest_id[uc_id] = c_id
@@ -126,10 +127,11 @@ class ColorSpace:
         return rgb_space, rgb_dist
 
     @staticmethod
-    def unique_color(color):
+    def unique_color(color, return_inverse=False):
         """
                                   0   1   2   3   4   5
         :param color: color set [C1, C2, C2, C3, C1, C4]
+        :param return_inverse:
         :return:
             unique_color = [C1, C2, C3, C4]  type=ndarray
             unique_color2id = [[0, 4], [1, 2], [3], [5]]  type=[[], [], ...] Don't use [c,n], use[c][n]
@@ -143,4 +145,7 @@ class ColorSpace:
         for c_id in range(len(color)):
             unique_color2id[id2unique_color[c_id]].append(c_id)
 
-        return unique_color, unique_color2id
+        ret = (unique_color, unique_color2id,)
+        if return_inverse:
+            ret += (id2unique_color,)
+        return ret

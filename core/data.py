@@ -9,7 +9,8 @@ from scipy.ndimage import distance_transform_edt
 
 
 class MattingData:
-    def __init__(self, img_url, trimap_url, img_name):
+    def __init__(self, img_url, trimap_url, img_name, log=False):
+        self.log = log
         self.img_name = img_name
         self.img_url = img_url
         self.trimap_url = trimap_url
@@ -31,11 +32,22 @@ class MattingData:
         # min distance to F\B.
         self.min_dist_f = distance_transform_edt(np.logical_not(self.isf))
         self.min_dist_b = distance_transform_edt(np.logical_not(self.isb))
+
+        # result:
         # [u_size, 1-id]
         self.sample_f, self.sample_b = [], []
         self.img_f, self.img_b = self.img.copy(), self.img.copy()
         self.cost_c = np.zeros(self.u_size)
-        # result
+        self.fit = np.zeros(self.u_size)
+        # alpha
+        self.alpha_matte = []
+        self.alpha_matte_smoothed = []
+
+    def clear_result(self):
+        self.sample_f, self.sample_b = [], []
+        self.img_f, self.img_b = self.img.copy(), self.img.copy()
+        self.cost_c = np.zeros(self.u_size)
+        self.fit = np.zeros(self.u_size)
         self.alpha_matte = []
         self.alpha_matte_smoothed = []
 

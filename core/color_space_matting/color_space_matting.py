@@ -18,25 +18,22 @@ class ColorSpaceMatting:
 
     def matting(self, max_fes):
         # color space.
-        color_space = ColorSpace(self.data)
+        color_space = ColorSpace(self.data, log=self.data.log)
 
         sample_f = np.zeros(self.data.u_size, 'int')
         sample_b = np.zeros(self.data.u_size, 'int')
         alpha = np.zeros(self.data.u_size)
         cost_c = np.zeros(self.data.u_size)
+        fitness = np.zeros(self.data.u_size)
 
         time_start = 0
         for u_id in range(self.data.u_size):
-            if u_id % 100 == 0:
+            if self.data.log and u_id % 100 == 0:
                 time_start = time.time()
-            f, b, alpha_tmp, c = vanilla_evolution(u_id, self.data, color_space, max_fes)
+            sample_f[u_id], sample_b[u_id], alpha[u_id], cost_c[u_id], fitness[u_id] = \
+                vanilla_evolution(u_id, self.data, color_space, max_fes)
 
-            sample_f[u_id] = f
-            sample_b[u_id] = b
-            alpha[u_id] = alpha_tmp
-            cost_c[u_id] = c
-
-            if u_id % 100 == 99:
+            if self.data.log and u_id % 100 == 99:
                 print('{:>5.2f}%{:>7.2f}s'.format((u_id + 1) / self.data.u_size * 100, time.time() - time_start))
 
         alpha_matte = self.data.trimap.copy()
@@ -45,3 +42,4 @@ class ColorSpaceMatting:
         self.data.sample_f = sample_f
         self.data.sample_b = sample_b
         self.data.cost_c = cost_c
+        self.data.fit = fitness

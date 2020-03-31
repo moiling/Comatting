@@ -86,4 +86,4 @@ def co_evolution(f, b, window, data: MattingData, max_fes):
         best_alpha[better] = alpha_i[better]
         best_c[better] = c_i[better]
 
-    return best_f, best_b, best_alpha, best_c
+    return best_f, best_b, best_alpha, best_c, best_fit

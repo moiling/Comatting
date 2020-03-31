@@ -15,7 +15,14 @@ def vanilla_evolution(u, data: MattingData, color_space: ColorSpace, max_fes):
         f/b:[pop_n, d], u:int
         f_u/b_u id is unique color id.
     """
-    pop_n = 100
+    if max_fes >= 1e3:
+        pop_n = 100
+    elif max_fes >= 1e2:
+        pop_n = max_fes / 10
+    elif max_fes >= 1e1:
+        pop_n = max_fes / 3
+    else:
+        pop_n = 2
 
     # initial random f/b id, and must be integer.
     f_u = np.random.randint(0, len(color_space.unique_color_f), pop_n)  # unique color id
@@ -85,5 +92,6 @@ def vanilla_evolution(u, data: MattingData, color_space: ColorSpace, max_fes):
     best_b = b[best_id]
     best_alpha = alpha[best_id]
     best_c = c[best_id]
+    best_fit = fit[best_id]
 
-    return best_f, best_b, best_alpha, best_c
+    return best_f, best_b, best_alpha, best_c, best_fit

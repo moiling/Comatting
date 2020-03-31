@@ -47,10 +47,11 @@ class Comatting:
         alpha = alpha.astype(float) / 255
 
         cost_c = np.zeros([self.data.height, self.data.width], 'int')
+        fitness = np.zeros([self.data.height, self.data.width], 'int')
 
         time_start = 0
         for u_id, window in enumerate(self.__windows(self.data.u_size)):
-            if u_id % 100 == 0:
+            if self.data.log and u_id % 100 == 0:
                 time_start = time.time()
 
             f = sample_f[window[:, 0], window[:, 1]]
@@ -59,14 +60,15 @@ class Comatting:
             f[f == -1] = np.random.randint(0, self.data.f_size, np.sum(f == -1))
             b[b == -1] = np.random.randint(0, self.data.b_size, np.sum(b == -1))
 
-            f, b, win_alpha, c = co_evolution(f, b, window, self.data, max_fes)
+            f, b, win_alpha, c, fit = co_evolution(f, b, window, self.data, max_fes)
             sample_f[window[:, 0], window[:, 1]] = f
             sample_b[window[:, 0], window[:, 1]] = b
             # alpha[u_id] = win_alpha[4]
             alpha[window[:, 0], window[:, 1]] = win_alpha
             cost_c[window[:, 0], window[:, 1]] = c
+            fitness[window[:, 0], window[:, 1]] = fit
 
-            if u_id % 100 == 99:
+            if self.data.log and u_id % 100 == 99:
                 print('{:>5.2f}%{:>7.2f}s'.format((u_id + 1) / self.data.u_size * 100, time.time() - time_start))
 
         alpha[self.data.isf] = 1
@@ -75,4 +77,5 @@ class Comatting:
         self.data.sample_f = sample_f[self.data.isu]
         self.data.sample_b = sample_b[self.data.isu]
         self.data.cost_c = cost_c[self.data.isu]
+        self.data.fit = fitness[self.data.isu]
 

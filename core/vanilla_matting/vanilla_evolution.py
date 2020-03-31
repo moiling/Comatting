@@ -10,7 +10,14 @@ from core.fitness import vanilla_fitness
 
 
 def vanilla_evolution(u, data: MattingData, max_fes):
-    pop_n = 100
+    if max_fes >= 1e3:
+        pop_n = 100
+    elif max_fes >= 1e2:
+        pop_n = max_fes / 10
+    elif max_fes >= 1e1:
+        pop_n = max_fes / 3
+    else:
+        pop_n = 2
 
     # initial random f/b id, and must be integer.
     f = np.random.randint(0, data.f_size, pop_n)
@@ -66,5 +73,6 @@ def vanilla_evolution(u, data: MattingData, max_fes):
     best_b = b[best_id]
     best_alpha = alpha[best_id]
     best_c = c[best_id]
+    best_fit = fit[best_id]
 
-    return best_f, best_b, best_alpha, best_c
+    return best_f, best_b, best_alpha, best_c, best_fit
