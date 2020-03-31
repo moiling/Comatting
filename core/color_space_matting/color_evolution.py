@@ -18,9 +18,9 @@ def vanilla_evolution(u, data: MattingData, color_space: ColorSpace, max_fes):
     if max_fes >= 1e3:
         pop_n = 100
     elif max_fes >= 1e2:
-        pop_n = max_fes / 10
+        pop_n = round(max_fes / 10)
     elif max_fes >= 1e1:
-        pop_n = max_fes / 3
+        pop_n = round(max_fes / 3)
     else:
         pop_n = 2
 
