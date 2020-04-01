@@ -29,7 +29,7 @@ class SpatialSpace:
         xy_space_b[self.data.isb] = np.arange(self.data.b_size)
         xy_space_b[self.data.isf] = self.nearest_xy_id(self.data.s_b, self.data.s_f)
         xy_space_b[self.data.isu] = self.nearest_xy_id(self.data.s_b, self.data.s_u)
-        return xy_space_f, xy_space_b
+        return xy_space_f.astype(int), xy_space_b.astype(int)
 
     @staticmethod
     def nearest_xy_id(known_spatial, unknown_spatial):

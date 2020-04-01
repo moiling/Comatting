@@ -3,6 +3,8 @@
 # @Time    : 2020/3/30 13:53
 # @Author  : moiling
 # @File    : spatial_evolution.py
+import time
+
 from core.color_space_matting.color_space import ColorSpace
 from core.data import MattingData
 from core.fitness import vanilla_fitness
@@ -16,7 +18,7 @@ def vanilla_evolution(u, data: MattingData, spatial_space: SpatialSpace, max_fes
     elif max_fes >= 1e2:
         pop_n = round(max_fes / 10)
     elif max_fes >= 1e1:
-        pop_n = round(max_fes / 3)
+        pop_n = round(max_fes / 4)
     else:
         pop_n = 2
 
@@ -89,7 +91,14 @@ def vanilla_evolution(u, data: MattingData, spatial_space: SpatialSpace, max_fes
 
 
 def unique_color_evolution(u, data: MattingData, spatial_space: SpatialSpace, max_fes):
-    pop_n = 100
+    if max_fes >= 1e3:
+        pop_n = 100
+    elif max_fes >= 1e2:
+        pop_n = round(max_fes / 10)
+    elif max_fes >= 1e1:
+        pop_n = round(max_fes / 4)
+    else:
+        pop_n = 2
 
     # initial random f/b id, and must be integer.
     f_u = np.random.randint(0, spatial_space.uc_f_size, pop_n)  # unique color id
@@ -140,6 +149,7 @@ def unique_color_evolution(u, data: MattingData, spatial_space: SpatialSpace, ma
         f_xy[f_xy < 0] = 0
         b_xy[b_xy < 0] = 0
 
+        # I guess here costs a lot of time, can I have a pre-xy-space that only has unique id? No!
         f_u[loser] = spatial_space.id2uc_f[spatial_space.spatial_space_f[f_xy[loser, 0], f_xy[loser, 1]]]
         b_u[loser] = spatial_space.id2uc_b[spatial_space.spatial_space_b[b_xy[loser, 0], b_xy[loser, 1]]]
 

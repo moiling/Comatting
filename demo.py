@@ -13,8 +13,10 @@ root_path = '/Users/moi/Documents/Code/PycharmProjects/ColorSpaceMatting/data'
 version_name, resize_name = 'v0.3.1', ''
 func_names = ['random_matting', 'random_matting(uc)', 'comatting', 'color_space_matting', 'spatial_matting(uc)',
               'spatial_matting', 'vanilla_matting']
+# func_names = ['spatial_matting(uc)']
 
-max_fes_list = [1e1, 5e1, 1e2, 5e2, 1e3, 5e3]
+max_fes_list = [1e2, 5e2, 1e3, 5e3, 1e1, 5e1]
+# max_fes_list = [5e1]
 log_in_method = False
 
 if __name__ == '__main__':
