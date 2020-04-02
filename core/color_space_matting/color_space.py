@@ -91,12 +91,12 @@ class ColorSpace:
         """
         nearest_id = np.zeros(len(unique_color_id))
 
-        for uc_id in range(len(unique_color_id)):   # one unique color
+        for i, uc_id in enumerate(unique_color_id):   # one unique color
             if len(unique_color2id[uc_id]) == 1:
                 n = 0
             else:
                 n = np.argmin(np.sqrt(np.sum(np.square(s[np.array(unique_color2id[uc_id])] - s_u), axis=1)))
-            nearest_id[uc_id] = unique_color2id[uc_id][n]
+            nearest_id[i] = unique_color2id[uc_id][n]
 
         return nearest_id.astype(int)
 

@@ -21,20 +21,15 @@ class Comatting:
         :param n: number of unknown pixels.
         :return: current unknown pixels' 9 neighbor pixels axis.
         """
+        X, Y = np.meshgrid(np.arange(self.data.width), np.arange(self.data.height))
         for u_id in range(n):
             y = self.data.s_u[u_id, 0]
             x = self.data.s_u[u_id, 1]
-            yield np.array([
-                [y - 1 if y - 1 >= 0 else y, x - 1 if x - 1 > 0 else x],
-                [y - 1 if y - 1 >= 0 else y, x],
-                [y - 1 if y - 1 >= 0 else y, x + 1 if x + 1 < self.data.width else x],
-                [y, x - 1 if x - 1 > 0 else x],
-                [y, x],
-                [y, x + 1 if x + 1 < self.data.width else x],
-                [y + 1 if y + 1 < self.data.height else y, x - 1 if x - 1 > 0 else x],
-                [y + 1 if y + 1 < self.data.height else y, x],
-                [y + 1 if y + 1 < self.data.height else y, x + 1 if x + 1 < self.data.width else x]
-            ])
+            y_min = max(0, y - 1)
+            y_max = min(self.data.height - 1, y + 1)
+            x_min = max(0, x - 1)
+            x_max = min(self.data.width - 1, x + 1)
+            yield np.reshape(np.array([Y[y_min:y_max + 1, x_min:x_max + 1], X[y_min:y_max + 1, x_min:x_max + 1]]), [2, -1]).T
 
     def matting(self, max_fes):
         # F and B sample per each pixels, -1 means not initial, F/B areas use current F/B id to initial.
