@@ -15,7 +15,7 @@ func_names = ['random_matting', 'random_matting(uc)', 'comatting', 'color_space_
               'spatial_matting', 'vanilla_matting']
 # func_names = ['spatial_matting(uc)']
 
-max_fes_list = [1e2, 5e2, 1e3, 5e3, 1e1, 5e1]
+max_fes_list = [1e1, 5e1, 1e3, 5e3]
 # max_fes_list = [5e1]
 log_in_method = False
 

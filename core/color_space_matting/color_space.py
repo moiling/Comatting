@@ -8,7 +8,7 @@ import sys
 import time
 
 from sklearn.neighbors.kd_tree import KDTree
-
+from sklearn import preprocessing
 from core.data import MattingData
 import numpy as np
 
@@ -55,6 +55,63 @@ class ColorSpace:
             np.savez(save_path + data.img_name + '.npz',
                      color_dist_f=self.color_dist_f, color_space_f=self.color_space_f,
                      color_dist_b=self.color_dist_b, color_space_b=self.color_space_b)
+
+    @staticmethod
+    def rgb_ray_distance_old(start_rgb, middle_rgb):
+        if start_rgb.ndim == 1:
+            start_rgb = start_rgb[np.newaxis, :]
+
+        m_s = middle_rgb - start_rgb
+        a = preprocessing.normalize(m_s)
+        b = start_rgb
+
+        a_tmp = np.reshape(np.tile(a, 2), [-1, 2, 3])
+        b_tmp = np.reshape(np.tile(b, 2), [-1, 2, 3])
+        # 6 plane function: [[r, g, b], [r, g, b]] => r=0, r=255, g=0, g=255, ...
+        #  [0, 255]     [r_a]       [r_b]
+        #  [0, 255]  =  [g_a] * X + [g_b]
+        #  [0, 255]     [b_a]       [b_b]
+        #
+        #       [x_1, x_2]
+        #  X =  [x_3, x_4]  => 6 plane intersection distance x，choose the min one that is first intersect.
+        #       [x_5, x_6]
+        surfaces = np.array([[[0, 0, 0], [255, 255, 255]]])
+        x = (surfaces - b_tmp) / (a_tmp + 0.0001)
+        x[x <= 0] = 1e5
+        x = np.min(np.reshape(x, [len(a), -1]), axis=1)
+        # intersection = a * x + b
+        return x, a
+
+    @staticmethod
+    def rgb_ray_distance(start_rgb, middle_rgb):
+        # B => start_rgb, I => middle_rgb
+        # where vector BI > 0 => ray BI may intersect the plane(255)
+        #              BI < 0 =>                      the plane(0)
+        #                 R   G   B
+        #     e.g. BI = [10, -20, 0] => may intersect the plane(R=255) or the plane(G=0)
+        # and each ray could intersect less than 3 plane(intersect point) => key point => K
+        # the MAX axis of (BI ./ BK) is the intersect plane.
+        #     e.g. B = [230, 40, 10], I = [240, 20, 10], K = [255, 0, 255],
+        #          BI = [10, -20, 0], BK = [25, -40, 245]
+        #          BI./BK = [2/5, 1/2, 0]
+        #          arg MAX(BI./BK) = 1 => so BI should intersect the plane(G=0)
+        # so the distance = (BK / normalize(BI))[arg MAX(BI./BK)].
+        #
+        # if you want get a point in this ray, ak + B, a in (0, d), a is a integer.
+
+        if start_rgb.ndim == 1:
+            start_rgb = start_rgb[np.newaxis, :]
+
+        m_s = middle_rgb - start_rgb
+        key_point = (m_s > 0) * 255
+        plane_axis = np.argmax(m_s / (key_point - start_rgb), axis=1)
+        m_s[m_s == 0] = 0.0001
+
+        range_m_s = np.arange(len(m_s))
+        k = preprocessing.normalize(m_s)
+        distance = (key_point[range_m_s, plane_axis] - start_rgb[range_m_s, plane_axis]) / (k[range_m_s, plane_axis] + 0.0001)
+
+        return distance, k
 
     @staticmethod
     def multi_rgb2unique_color_id(rgb, rgb_space):
