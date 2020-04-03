@@ -18,7 +18,7 @@ class ColorSpace:
     Now only use RGB space.
     """
 
-    def __init__(self, data: MattingData, log=False, save_cache=False):
+    def __init__(self, data: MattingData, log=False, save_cache=True):
         self.data = data
         self.unique_color_f, self.unique_color2id_f = self.unique_color(self.data.rgb_f)
         self.unique_color_b, self.unique_color2id_b = self.unique_color(self.data.rgb_b)
@@ -27,13 +27,13 @@ class ColorSpace:
         save_path = './out/color_space/'
         if save_cache and os.path.exists(save_path + data.img_name + '.npz'):
             if log:
-                print('{:-^70}\n{:|^70}\n{:-^70}'.format('', ' USE COLOR SPACE CACHE ', ''))
+                print('\n{:-^70}\n{:|^70}\n{:-^70}'.format('', ' USE COLOR SPACE CACHE ', ''))
             color_space_data = np.load(save_path + data.img_name + '.npz')
             self.color_space_f, self.color_dist_f = color_space_data['color_space_f'], color_space_data['color_dist_f']
             self.color_space_b, self.color_dist_b = color_space_data['color_space_b'], color_space_data['color_dist_b']
         else:
             if log:
-                print('{:-^70}\n{:|^70}\n{:-^70}'.format('', ' COMPUTING COLOR SPACE ', ''))
+                print('\n{:-^70}\n{:|^70}\n{:-^70}'.format('', ' COMPUTING COLOR SPACE ', ''))
                 print('|{:^6}|{:^30}|{:^30}|\n{:-^70}'.format('', 'TIME USED/MIN', 'MEMORY USED/MB', ''))
                 print('|{:^6}|'.format('F'), end='')
             t_start = time.time()
@@ -55,6 +55,19 @@ class ColorSpace:
             np.savez(save_path + data.img_name + '.npz',
                      color_dist_f=self.color_dist_f, color_space_f=self.color_space_f,
                      color_dist_b=self.color_dist_b, color_space_b=self.color_space_b)
+
+    def ray_points_rgb(self, start_rgb, middle_rgb, d):
+        # d must be [0, 1], list or number.
+        distance, k = self.rgb_ray_distance_old(start_rgb, middle_rgb)
+        d = np.round(d * distance)[:, np.newaxis]
+        rgb_points = start_rgb + d * k
+        return rgb_points.astype(int)
+
+    def ray_points_uid_f(self, start_rgb, middle_rgb, d):
+        rgb_points = self.ray_points_rgb(start_rgb, middle_rgb, d)
+        if rgb_points.ndim == 1:
+            rgb_points = rgb_points[np.newaxis, :]
+        return self.multi_rgb2unique_color_id(rgb_points, self.color_space_f)
 
     @staticmethod
     def rgb_ray_distance_old(start_rgb, middle_rgb):

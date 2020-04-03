@@ -7,16 +7,16 @@ import os
 import time
 import cv2
 import numpy as np
-from core.matting import Matting
+from core.matting import Matting, Method
 
 root_path = '/Users/moi/Documents/Code/PycharmProjects/ColorSpaceMatting/data'
-version_name, resize_name = 'v0.3.1', ''
-func_names = ['random_matting', 'random_matting(uc)', 'comatting', 'color_space_matting', 'spatial_matting(uc)',
-              'spatial_matting', 'vanilla_matting']
-# func_names = ['spatial_matting(uc)']
+version_name, resize_name = 'v0.4', ''
+# func_names = [Method.RANDOM, Method.RANDOM_UC, Method.COMATTING, Method.COLOR_SPACE, Method.SPATIAL_UC,
+#               Method.SPATIAL, Method.VANILLA]
+func_names = [Method.COLOR_SPACE_B_RAY, Method.COLOR_SPACE_B_RAY_SAMPLE]
 
-max_fes_list = [1e1, 5e1, 1e3, 5e3]
-# max_fes_list = [5e1]
+# max_fes_list = [1e1, 5e1, 1e3, 5e3]
+max_fes_list = [5e2]
 log_in_method = False
 
 if __name__ == '__main__':
@@ -31,7 +31,7 @@ if __name__ == '__main__':
         # for img_name in ['elephant', 'donkey', 'doll', 'net', 'pineapple', 'plant', 'plasticbag', 'troll']:
         # for img_name in ['GT14']:
         # for img_name in ['GT{:02d}'.format(i) for i in range(1, 28)]:
-        for img_name in ['GT{:02d}'.format(i) for i in [1, 4, 5, 13, 14, 16, 18, 21, 24, 25, 27]]:  # selected img
+        for img_name in ['GT{:02d}'.format(i) for i in [5, 13, 14, 16, 18, 21, 24, 25, 27, 1, 4]]:  # selected img
             img_url = '{}/input_lowres/{}/{}.png'.format(root_path, resize_name, img_name)
             trimap_url = '{}/trimap_lowres/Trimap1/{}/{}.png'.format(root_path, resize_name, img_name)
             gt_url = '{}/gt/{}/{}.png'.format(root_path, resize_name, img_name)
@@ -42,7 +42,7 @@ if __name__ == '__main__':
                 # Log
                 print('|{:^15}|{:^10}|{:^15}|{:^25}|{:^10.0e}'
                       .format(time.strftime('%H:%M:%S', time.localtime(time.time())), img_name,
-                              '{}x{}'.format(matting.data.height, matting.data.width), func_name, max_fes), end='')
+                              '{}x{}'.format(matting.data.height, matting.data.width), func_name.value, max_fes), end='')
 
                 time_start = time.time()
                 alpha_matte = matting.matting(func_name=func_name, max_fes=max_fes)
@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
                 img_f, img_b = matting.img_fnb()
 
-                save_pic_path = '{}/{}/{}/{:.0e}/{}'.format(out_url, version_name, func_name, max_fes, resize_name)
+                save_pic_path = '{}/{}/{}/{:.0e}/{}'.format(out_url, version_name, func_name.value, max_fes, resize_name)
                 save_data_path = '{}/data/'.format(save_pic_path)
                 if not os.path.exists(save_pic_path):
                     os.makedirs(save_pic_path)
