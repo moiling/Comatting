@@ -10,6 +10,7 @@ import cv2
 from .color_closely_segmentation.color_closely_segmentation import ColorCloselySegmentation
 from .color_space_matting.color_space_matting import ColorSpaceMatting, EvolutionType
 from .loss import sad_loss, mse_loss
+from .multi_points_matting.multi_points_matting import MultiPointsMatting
 from .random_matting.random_matting import RandomMatting
 from .smoothing import smoothing
 from .comatting.comatting import Comatting
@@ -21,6 +22,7 @@ from .vanilla_matting.vanilla_matting import VanillaMatting
 class Method(Enum):
     COMATTING = 'comatting'
     RANDOM = 'random_matting'
+    RANDOM_B_RAY = 'random_matting(ray_b)'
     COLOR_SPACE = 'color_space_matting'
     SPATIAL = 'spatial_matting'
     VANILLA = 'vanilla_matting'
@@ -28,6 +30,7 @@ class Method(Enum):
     RANDOM_UC = 'random_matting(uc)'
     COLOR_SPACE_B_RAY_SAMPLE = 'color_space(ray_b_sample)'
     COLOR_SPACE_B_RAY = 'color_space(ray_b)'
+    MULTI_POINTS = 'multi_points_matting'
 
 
 class Matting:
@@ -55,8 +58,16 @@ class Matting:
             return self.color_space_matting(max_fes, EvolutionType.B_RAY_SAMPLE)
         if func_name == Method.COLOR_SPACE_B_RAY:
             return self.color_space_matting(max_fes, EvolutionType.B_RAY)
+        if func_name == Method.RANDOM_B_RAY:
+            return self.color_space_matting(max_fes, EvolutionType.B_RAY_RANDOM)
+        if func_name == Method.MULTI_POINTS:
+            return self.multi_points_matting(max_fes)
 
         raise Exception('ERROR: no matting function named {}.'.format(func_name))
+
+    def multi_points_matting(self, max_fes=default_max_fes):
+        MultiPointsMatting(self.data).matting(max_fes)
+        return self.data.alpha_matte
 
     def vanilla_matting(self, max_fes=default_max_fes):
         VanillaMatting(self.data).matting(max_fes)

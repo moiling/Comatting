@@ -10,13 +10,14 @@ import numpy as np
 from core.matting import Matting, Method
 
 root_path = '/Users/moi/Documents/Code/PycharmProjects/ColorSpaceMatting/data'
-version_name, resize_name = 'v0.4', ''
+version_name, resize_name = 'v0.5', ''
 # func_names = [Method.RANDOM, Method.RANDOM_UC, Method.COMATTING, Method.COLOR_SPACE, Method.SPATIAL_UC,
 #               Method.SPATIAL, Method.VANILLA]
-func_names = [Method.COLOR_SPACE_B_RAY, Method.COLOR_SPACE_B_RAY_SAMPLE]
+func_names = [Method.MULTI_POINTS]
 
 # max_fes_list = [1e1, 5e1, 1e3, 5e3]
-max_fes_list = [5e2]
+max_fes_list = [5e2, 1e3, 5e3]
+
 log_in_method = False
 
 if __name__ == '__main__':
@@ -29,9 +30,7 @@ if __name__ == '__main__':
                       'IMAGE', 'SIZE', 'METHOD', 'FES', 'AVG FIT', 'SAD', 'MSE', 'MATTING TIME', 'SMOOTHING TIME', ''))
 
         # for img_name in ['elephant', 'donkey', 'doll', 'net', 'pineapple', 'plant', 'plasticbag', 'troll']:
-        # for img_name in ['GT14']:
-        # for img_name in ['GT{:02d}'.format(i) for i in range(1, 28)]:
-        for img_name in ['GT{:02d}'.format(i) for i in [5, 13, 14, 16, 18, 21, 24, 25, 27, 1, 4]]:  # selected img
+        for img_name in ['GT{:02d}'.format(i) for i in [13, 1, 4, 5, 14, 16, 18, 21, 24, 25, 27]]:  # selected img
             img_url = '{}/input_lowres/{}/{}.png'.format(root_path, resize_name, img_name)
             trimap_url = '{}/trimap_lowres/Trimap1/{}/{}.png'.format(root_path, resize_name, img_name)
             gt_url = '{}/gt/{}/{}.png'.format(root_path, resize_name, img_name)

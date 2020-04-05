@@ -105,6 +105,7 @@ def b_ray_sample_evolution(u, data: MattingData, color_space: ColorSpace, max_fe
         pop_n = 5
         sample_n = 10
     elif max_fes >= 1e1:
+        # bug: pop_n / 2 must > 1.
         pop_n = 2
         sample_n = 2
     else:
@@ -191,6 +192,35 @@ def b_ray_sample_evolution(u, data: MattingData, color_space: ColorSpace, max_fe
         f[loser] = f_sample[best_sample, np.arange(round(pop_n / 2))]
 
         fes += round(pop_n / 2) * sample_n
+
+    best_id = np.argmin(fit, axis=0)
+    best_f = f[best_id]
+    best_b = b[best_id]
+    best_alpha = alpha[best_id]
+    best_c = c[best_id]
+    best_fit = fit[best_id]
+
+    return best_f, best_b, best_alpha, best_c, best_fit
+
+
+def b_ray_random_evolution(u, data: MattingData, color_space: ColorSpace, max_fes):
+    pop_n = round(max_fes)
+
+    b_u = (np.random.sample(pop_n) * len(color_space.unique_color_b)).astype(int)  # unique color id
+    d = np.random.sample(pop_n)
+    b = color_space.u_color2n_id_b(b_u, u)  # color id
+    b_u_rgb = color_space.unique_color_b[b_u].astype(int)
+
+    rgb_u = data.rgb_u[u]
+    s_u = data.s_u[u]
+    md_fpu = data.min_dist_f[s_u[0], s_u[1]]
+    md_bpu = data.min_dist_b[s_u[0], s_u[1]]
+
+    f_u = color_space.ray_points_uid_f(b_u_rgb, rgb_u, d)
+    f = color_space.u_color2n_id_f(f_u, u)
+
+    alpha, fit, c, _, _ = \
+        vanilla_fitness(data.rgb_f[f], data.rgb_b[b], data.s_f[f], data.s_b[b], rgb_u, s_u, md_fpu, md_bpu)
 
     best_id = np.argmin(fit, axis=0)
     best_f = f[best_id]

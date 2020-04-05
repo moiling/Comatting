@@ -1,26 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Time    : 2020/3/23 12:42
+# @Time    : 2020/4/5 14:49
 # @Author  : moiling
-# @File    : comatting.py
+# @File    : multi_points_matting.py
 import time
 
-from ..data import MattingData
+from core.data import MattingData
 import numpy as np
 
-from .co_evolution import co_evolution
+from core.multi_points_matting.multi_points_evolution import multi_points_evolution
 
 
-class Comatting:
+class MultiPointsMatting:
     def __init__(self, data: MattingData):
         self.data = data
 
     def __windows(self, n):
-        """
-        Iterator creator: get 9 neighbor pixels axis.
-        :param n: number of unknown pixels.
-        :return: current unknown pixels' 9 neighbor pixels axis.
-        """
         X, Y = np.meshgrid(np.arange(self.data.width), np.arange(self.data.height))
         for u_id in range(n):
             y = self.data.s_u[u_id, 0]
@@ -29,7 +24,8 @@ class Comatting:
             y_max = min(self.data.height - 1, y + 1)
             x_min = max(0, x - 1)
             x_max = min(self.data.width - 1, x + 1)
-            yield np.reshape(np.array([Y[y_min:y_max + 1, x_min:x_max + 1], X[y_min:y_max + 1, x_min:x_max + 1]]), [2, -1]).T
+            yield np.reshape(np.array([Y[y_min:y_max + 1, x_min:x_max + 1], X[y_min:y_max + 1, x_min:x_max + 1]]),
+                             [2, -1]).T
 
     def matting(self, max_fes):
         # F and B sample per each pixels, -1 means not initial, F/B areas use current F/B id to initial.
@@ -55,13 +51,18 @@ class Comatting:
             f[f == -1] = np.random.randint(0, self.data.f_size, np.sum(f == -1))
             b[b == -1] = np.random.randint(0, self.data.b_size, np.sum(b == -1))
 
-            f, b, win_alpha, c, fit = co_evolution(f, b, window, self.data, max_fes)
-            sample_f[window[:, 0], window[:, 1]] = f
-            sample_b[window[:, 0], window[:, 1]] = b
+            if len(window) == 9:
+                center_id = 4
+            else:
+                center_id = np.where(np.logical_and(window[:, 0] == self.data.s_u[u_id, 0],
+                                                    window[:, 1] == self.data.s_u[u_id, 1]))[0][0]
+            f, b, center_alpha, c, fit = multi_points_evolution(f, b, window, self.data, max_fes, center_id)
+            sample_f[window[center_id, 0], window[center_id, 1]] = f
+            sample_b[window[center_id, 0], window[center_id, 1]] = b
             # alpha[u_id] = win_alpha[4]
-            alpha[window[:, 0], window[:, 1]] = win_alpha
-            cost_c[window[:, 0], window[:, 1]] = c
-            fitness[window[:, 0], window[:, 1]] = fit
+            alpha[window[center_id, 0], window[center_id, 1]] = center_alpha
+            cost_c[window[center_id, 0], window[center_id, 1]] = c
+            fitness[window[center_id, 0], window[center_id, 1]] = fit
 
             if self.data.log and u_id % 100 == 99:
                 print('{:>5.2f}%{:>7.2f}s'.format((u_id + 1) / self.data.u_size * 100, time.time() - time_start))
@@ -74,4 +75,3 @@ class Comatting:
         self.data.sample_b = sample_b[self.data.isu]
         self.data.cost_c = cost_c[self.data.isu]
         self.data.fit = fitness[self.data.isu]
-

@@ -18,7 +18,7 @@ class ColorSpace:
     Now only use RGB space.
     """
 
-    def __init__(self, data: MattingData, log=False, save_cache=True):
+    def __init__(self, data: MattingData, log=False, save_cache=False):
         self.data = data
         self.unique_color_f, self.unique_color2id_f = self.unique_color(self.data.rgb_f)
         self.unique_color_b, self.unique_color2id_b = self.unique_color(self.data.rgb_b)
