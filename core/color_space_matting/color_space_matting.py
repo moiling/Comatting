@@ -24,7 +24,7 @@ class ColorSpaceMatting:
     def __init__(self, data: MattingData):
         self.data = data
 
-    def matting(self, max_fes, evolution_type: EvolutionType):
+    def matting(self, max_fes, evolution_type=EvolutionType.VANILLA):
         # color space.
         color_space = ColorSpace(self.data, log=self.data.log)
 

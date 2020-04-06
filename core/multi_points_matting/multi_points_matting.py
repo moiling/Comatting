@@ -4,11 +4,17 @@
 # @Author  : moiling
 # @File    : multi_points_matting.py
 import time
+from enum import Enum
 
 from core.data import MattingData
 import numpy as np
 
-from core.multi_points_matting.multi_points_evolution import multi_points_evolution
+from core.multi_points_matting.multi_points_evolution import multi_points_evolution, multi_points_vanilla_evolution
+
+
+class EvolutionType(Enum):
+    MIN_FB_RGB_ALPHA = 0
+    VANILLA = 1
 
 
 class MultiPointsMatting:
@@ -27,7 +33,7 @@ class MultiPointsMatting:
             yield np.reshape(np.array([Y[y_min:y_max + 1, x_min:x_max + 1], X[y_min:y_max + 1, x_min:x_max + 1]]),
                              [2, -1]).T
 
-    def matting(self, max_fes):
+    def matting(self, max_fes, evo_type=EvolutionType.MIN_FB_RGB_ALPHA):
         # F and B sample per each pixels, -1 means not initial, F/B areas use current F/B id to initial.
         sample_f = np.ones([self.data.height, self.data.width], 'int') * -1
         sample_b = np.ones([self.data.height, self.data.width], 'int') * -1
@@ -56,7 +62,11 @@ class MultiPointsMatting:
             else:
                 center_id = np.where(np.logical_and(window[:, 0] == self.data.s_u[u_id, 0],
                                                     window[:, 1] == self.data.s_u[u_id, 1]))[0][0]
-            f, b, center_alpha, c, fit = multi_points_evolution(f, b, window, self.data, max_fes, center_id)
+            if evo_type == EvolutionType.VANILLA:
+                f, b, center_alpha, c, fit = multi_points_vanilla_evolution(f, b, window, self.data, max_fes, center_id)
+            else:
+                f, b, center_alpha, c, fit = multi_points_evolution(f, b, window, self.data, max_fes, center_id)
+
             sample_f[window[center_id, 0], window[center_id, 1]] = f
             sample_b[window[center_id, 0], window[center_id, 1]] = b
             # alpha[u_id] = win_alpha[4]

@@ -9,6 +9,7 @@ import cv2
 
 from .color_closely_segmentation.color_closely_segmentation import ColorCloselySegmentation
 from .color_space_matting.color_space_matting import ColorSpaceMatting, EvolutionType
+from .multi_points_matting.multi_points_matting import EvolutionType as MultiEvolutionType
 from .loss import sad_loss, mse_loss
 from .multi_points_matting.multi_points_matting import MultiPointsMatting
 from .random_matting.random_matting import RandomMatting
@@ -31,6 +32,7 @@ class Method(Enum):
     COLOR_SPACE_B_RAY_SAMPLE = 'color_space(ray_b_sample)'
     COLOR_SPACE_B_RAY = 'color_space(ray_b)'
     MULTI_POINTS = 'multi_points_matting'
+    MULTI_POINTS_VANILLA = 'multi_vanilla_matting'
 
 
 class Matting:
@@ -62,11 +64,13 @@ class Matting:
             return self.color_space_matting(max_fes, EvolutionType.B_RAY_RANDOM)
         if func_name == Method.MULTI_POINTS:
             return self.multi_points_matting(max_fes)
+        if func_name == Method.MULTI_POINTS_VANILLA:
+            return self.multi_points_matting(max_fes, MultiEvolutionType.VANILLA)
 
         raise Exception('ERROR: no matting function named {}.'.format(func_name))
 
-    def multi_points_matting(self, max_fes=default_max_fes):
-        MultiPointsMatting(self.data).matting(max_fes)
+    def multi_points_matting(self, max_fes=default_max_fes, evo_type=MultiEvolutionType.MIN_FB_RGB_ALPHA):
+        MultiPointsMatting(self.data).matting(max_fes, evo_type)
         return self.data.alpha_matte
 
     def vanilla_matting(self, max_fes=default_max_fes):

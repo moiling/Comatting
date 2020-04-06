@@ -90,9 +90,16 @@ XY空间的学习，效果并不好。编写纯FB id的方法；编写XY空间+�
 把comatting的Window方法提速2倍
 
 ## v0.4
+- 2020.4.3
+
 射线方法，射线到颜色空间边缘的线上，没有去除重复颜色。不是alpha 0-255的方法。<br/>
 b_ray_sample:b学习，f在bi射线上随机采样<br/>
 b_ray:b学习，d也学习，d是指bi射线上到i的距离<br/>
 结果证明b_ray_sample没b_ray好。
+
+## v0.5
+- 2020.4.5
+
+多点评价，改正原来error计算错误（原来用uint8来算）
 
 
