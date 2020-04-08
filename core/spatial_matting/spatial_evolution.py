@@ -54,8 +54,8 @@ def vanilla_evolution(u, data: MattingData, spatial_space: SpatialSpace, max_fes
         # learning in xy space.
         f_xy = data.s_f[f]
         b_xy = data.s_b[b]
-        v_f[loser] = v_random * v_f[loser] + alpha[winner, np.newaxis] * d_random * (f_xy[winner] - f_xy[loser])
-        v_b[loser] = v_random * v_b[loser] + (1 - alpha[winner, np.newaxis]) * d_random * (b_xy[winner] - b_xy[loser])
+        v_f[loser] = v_random * v_f[loser] + d_random * (f_xy[winner] - f_xy[loser])
+        v_b[loser] = v_random * v_b[loser] + d_random * (b_xy[winner] - b_xy[loser])
 
         f_xy[loser] = v_f[loser] + f_xy[loser]
         b_xy[loser] = v_b[loser] + b_xy[loser]
@@ -135,8 +135,8 @@ def unique_color_evolution(u, data: MattingData, spatial_space: SpatialSpace, ma
         # learning in xy space.
         f_xy = data.s_f[f]
         b_xy = data.s_b[b]
-        v_f[loser] = v_random * v_f[loser] + alpha[winner, np.newaxis] * d_random * (f_xy[winner] - f_xy[loser])
-        v_b[loser] = v_random * v_b[loser] + (1 - alpha[winner, np.newaxis]) * d_random * (b_xy[winner] - b_xy[loser])
+        v_f[loser] = v_random * v_f[loser] + d_random * (f_xy[winner] - f_xy[loser])
+        v_b[loser] = v_random * v_b[loser] + d_random * (b_xy[winner] - b_xy[loser])
 
         f_xy[loser] = v_f[loser] + f_xy[loser]
         b_xy[loser] = v_b[loser] + b_xy[loser]

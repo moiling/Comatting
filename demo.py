@@ -10,14 +10,9 @@ import numpy as np
 from core.matting import Matting, Method
 
 root_path = '/Users/moi/Documents/Code/PycharmProjects/ColorSpaceMatting/data'
-version_name, resize_name = 'v0.5', ''
-# func_names = [Method.RANDOM, Method.RANDOM_UC, Method.COMATTING, Method.COLOR_SPACE, Method.SPATIAL_UC,
-#               Method.SPATIAL, Method.VANILLA]
-func_names = [Method.MULTI_POINTS, Method.MULTI_POINTS_VANILLA]
-
-# max_fes_list = [1e1, 5e1, 1e3, 5e3]
-max_fes_list = [1e4, 5e4, 1e5]
-
+version_name, resize_name = 'v0.8', ''
+func_names = [Method.MULTI_RANDOM, Method.MULTI_RANDOM_FB, Method.MULTI_RANDOM_SINGLE]
+max_fes_list = [1e4]
 log_in_method = False
 
 if __name__ == '__main__':

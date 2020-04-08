@@ -3,13 +3,15 @@
 # @Time    : 2020/4/5 14:52
 # @Author  : moiling
 # @File    : multi_points_evolution.py
+from core.color_space_matting.color_space import ColorSpace
 from core.data import MattingData
 import numpy as np
 
 from core.fitness import multi_points_fitness, vanilla_fitness
 
 
-def multi_points_evolution(f_init, b_init, window, data: MattingData, max_fes, center_id):
+def multi_points_evolution(f_init, b_init, window, data: MattingData, max_fes, center_id,
+                           fitness_func=multi_points_fitness):
     if max_fes >= 1e4:
         pop_n = 50
     elif max_fes >= 1e3:
@@ -37,8 +39,8 @@ def multi_points_evolution(f_init, b_init, window, data: MattingData, max_fes, c
     v_b = np.zeros([pop_n, len(window)])
 
     alpha, fit, c, _, _ = \
-        multi_points_fitness(data.rgb_f[f], data.rgb_b[b], data.s_f[f], data.s_b[b], rgb_u, s_u, md_fpu, md_bpu,
-                             center_id)
+        fitness_func(data.rgb_f[f], data.rgb_b[b], data.s_f[f], data.s_b[b], rgb_u, s_u, md_fpu, md_bpu,
+                     center_id)
 
     fes = pop_n * len(window)
 
@@ -52,8 +54,8 @@ def multi_points_evolution(f_init, b_init, window, data: MattingData, max_fes, c
 
         v_random = np.random.rand(round(pop_n / 2), len(window))
         d_random = np.random.rand(round(pop_n / 2), len(window))
-        v_f[loser] = v_random * v_f[loser] + alpha[winner] * d_random * (f[winner] - f[loser])
-        v_b[loser] = v_random * v_b[loser] + (1 - alpha[winner]) * d_random * (b[winner] - b[loser])
+        v_f[loser] = v_random * v_f[loser] + d_random * (f[winner] - f[loser])
+        v_b[loser] = v_random * v_b[loser] + d_random * (b[winner] - b[loser])
 
         f[loser] = f[loser] + v_f[loser]
         b[loser] = b[loser] + v_b[loser]
@@ -65,9 +67,9 @@ def multi_points_evolution(f_init, b_init, window, data: MattingData, max_fes, c
         b[b < 0] = 0
 
         alpha_loser, fit_loser, c_loser, _, _ \
-            = multi_points_fitness(data.rgb_f[f[loser]], data.rgb_b[b[loser]], data.s_f[f[loser]],
-                                   data.s_b[b[loser]], rgb_u, s_u, md_fpu,
-                                   md_bpu, center_id)
+            = fitness_func(data.rgb_f[f[loser]], data.rgb_b[b[loser]], data.s_f[f[loser]],
+                           data.s_b[b[loser]], rgb_u, s_u, md_fpu,
+                           md_bpu, center_id)
         fit[loser] = fit_loser
         alpha[loser] = alpha_loser
         c[loser] = c_loser
@@ -126,8 +128,8 @@ def multi_points_vanilla_evolution(f_init, b_init, window, data: MattingData, ma
 
         v_random = np.random.rand(round(pop_n / 2), len(window))
         d_random = np.random.rand(round(pop_n / 2), len(window))
-        v_f[loser] = v_random * v_f[loser] + alpha[winner] * d_random * (f[winner] - f[loser])
-        v_b[loser] = v_random * v_b[loser] + (1 - alpha[winner]) * d_random * (b[winner] - b[loser])
+        v_f[loser] = v_random * v_f[loser] + d_random * (f[winner] - f[loser])
+        v_b[loser] = v_random * v_b[loser] + d_random * (b[winner] - b[loser])
 
         f[loser] = f[loser] + v_f[loser]
         b[loser] = b[loser] + v_b[loser]

@@ -5,7 +5,6 @@
 # @File    : spatial_space.py
 from sklearn.neighbors.kd_tree import KDTree
 
-from core.color_space_matting.color_space import ColorSpace
 from core.data import MattingData
 import numpy as np
 
@@ -38,6 +37,7 @@ class SpatialSpace:
         return np.squeeze(xy_space)
 
     def set_unique_color(self):
+        from core.color_space_matting.color_space import ColorSpace
         uc_f, self.uc2id_f, self.id2uc_f = ColorSpace.unique_color(self.data.rgb_f, return_inverse=True)
         uc_b, self.uc2id_b, self.id2uc_b = ColorSpace.unique_color(self.data.rgb_b, return_inverse=True)
         self.uc_f_size = len(uc_f)

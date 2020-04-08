@@ -60,8 +60,8 @@ def vanilla_evolution(u, data: MattingData, color_space: ColorSpace, max_fes):
         b_u_rgb = color_space.unique_color_b[b_u].astype(int)
 
         # if initial alpha = [0,0,0,0,...,0] => don't move
-        v_f[loser] = v_random * v_f[loser] + alpha[winner, np.newaxis] * d_random * (f_u_rgb[winner] - f_u_rgb[loser])
-        v_b[loser] = v_random * v_b[loser] + (1 - alpha[winner, np.newaxis]) * d_random * (b_u_rgb[winner] - b_u_rgb[loser])
+        v_f[loser] = v_random * v_f[loser] + d_random * (f_u_rgb[winner] - f_u_rgb[loser])
+        v_b[loser] = v_random * v_b[loser] + d_random * (b_u_rgb[winner] - b_u_rgb[loser])
 
         f_u_rgb[loser] = v_f[loser] + f_u_rgb[loser]
         b_u_rgb[loser] = v_b[loser] + b_u_rgb[loser]
@@ -123,7 +123,7 @@ def b_ray_sample_evolution(u, data: MattingData, color_space: ColorSpace, max_fe
     md_bpu = data.min_dist_b[s_u[0], s_u[1]]
 
     # [pop_n * sample_n, 1]
-    f_sample_u = color_space.ray_points_uid_f(np.tile(b_u_rgb, [sample_n, 1]), rgb_u, np.random.sample(pop_n * sample_n))
+    f_sample_u = color_space.ray_points_uid_f(np.tile(b_u_rgb, [sample_n, 1]), u, np.random.sample(pop_n * sample_n))
     f_sample = color_space.u_color2n_id_f(f_sample_u, u)
 
     v_b = np.zeros([pop_n, data.color_channel])
@@ -170,7 +170,7 @@ def b_ray_sample_evolution(u, data: MattingData, color_space: ColorSpace, max_fe
         b_u[loser] = color_space.multi_rgb2unique_color_id(b_u_rgb[loser], color_space.color_space_b)
         b_u_rgb[loser] = color_space.unique_color_b[b_u[loser]].astype(int)
 
-        f_sample_u = color_space.ray_points_uid_f(np.tile(b_u_rgb[loser], [sample_n, 1]), rgb_u, np.random.sample(round(pop_n / 2) * sample_n))
+        f_sample_u = color_space.ray_points_uid_f(np.tile(b_u_rgb[loser], [sample_n, 1]), u, np.random.sample(round(pop_n / 2) * sample_n))
 
         f_sample = color_space.u_color2n_id_f(f_sample_u, u)
 
@@ -216,7 +216,7 @@ def b_ray_random_evolution(u, data: MattingData, color_space: ColorSpace, max_fe
     md_fpu = data.min_dist_f[s_u[0], s_u[1]]
     md_bpu = data.min_dist_b[s_u[0], s_u[1]]
 
-    f_u = color_space.ray_points_uid_f(b_u_rgb, rgb_u, d)
+    f_u = color_space.ray_points_uid_f(b_u_rgb, u, d)
     f = color_space.u_color2n_id_f(f_u, u)
 
     alpha, fit, c, _, _ = \
@@ -253,7 +253,7 @@ def b_ray_evolution(u, data: MattingData, color_space: ColorSpace, max_fes):
     md_fpu = data.min_dist_f[s_u[0], s_u[1]]
     md_bpu = data.min_dist_b[s_u[0], s_u[1]]
 
-    f_u = color_space.ray_points_uid_f(b_u_rgb, rgb_u, d)
+    f_u = color_space.ray_points_uid_f(b_u_rgb, u, d)
     f = color_space.u_color2n_id_f(f_u, u)
 
     v_b = np.zeros([pop_n, data.color_channel])
@@ -294,7 +294,7 @@ def b_ray_evolution(u, data: MattingData, color_space: ColorSpace, max_fes):
         b_u[loser] = color_space.multi_rgb2unique_color_id(b_u_rgb[loser], color_space.color_space_b)
         b_u_rgb[loser] = color_space.unique_color_b[b_u[loser]].astype(int)
 
-        f_u = color_space.ray_points_uid_f(b_u_rgb[loser], rgb_u, d[loser])
+        f_u = color_space.ray_points_uid_f(b_u_rgb[loser], u, d[loser])
 
         f[loser] = color_space.u_color2n_id_f(f_u, u)
 

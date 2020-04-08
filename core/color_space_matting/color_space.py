@@ -12,19 +12,24 @@ from sklearn import preprocessing
 from core.data import MattingData
 import numpy as np
 
+from core.spatial_matting.spatial_space import SpatialSpace
+
 
 class ColorSpace:
     """
     Now only use RGB space.
     """
 
-    def __init__(self, data: MattingData, log=False, save_cache=False):
+    def __init__(self, data: MattingData, use_spatial_space=True, log=False, save_cache=True,
+                 save_path='./out/color_space/'):
         self.data = data
         self.unique_color_f, self.unique_color2id_f = self.unique_color(self.data.rgb_f)
         self.unique_color_b, self.unique_color2id_b = self.unique_color(self.data.rgb_b)
         self.all_color = self.all_rgb()
+        self.use_spatial_space = use_spatial_space
+        if self.use_spatial_space:
+            self.spatial_space = SpatialSpace(self.data)
 
-        save_path = './out/color_space/'
         if save_cache and os.path.exists(save_path + data.img_name + '.npz'):
             if log:
                 print('\n{:-^70}\n{:|^70}\n{:-^70}'.format('', ' USE COLOR SPACE CACHE ', ''))
@@ -56,15 +61,25 @@ class ColorSpace:
                      color_dist_f=self.color_dist_f, color_space_f=self.color_space_f,
                      color_dist_b=self.color_dist_b, color_space_b=self.color_space_b)
 
-    def ray_points_rgb(self, start_rgb, middle_rgb, d):
+    def ray_points_rgb_f(self, start_rgb, middle_id, d):
         # d must be [0, 1], list or number.
+        middle_rgb = self.data.rgb_u[middle_id]
         distance, k = self.rgb_ray_distance_old(start_rgb, middle_rgb)
         d = np.round(d * distance)[:, np.newaxis]
         rgb_points = start_rgb + d * k
+
+        same_color = np.sum(k != [0, 0, 0], axis=1) == 0
+        if np.sum(same_color) > 0:
+            if self.use_spatial_space:
+                middle_s = self.data.s_u[middle_id]
+                rgb_points[same_color] = self.data.rgb_f[
+                    self.spatial_space.spatial_space_f[middle_s[..., 0], middle_s[..., 1]]]
+            else:
+                rgb_points[same_color] = np.random.randint(0, 255, [3])
         return rgb_points.astype(int)
 
-    def ray_points_uid_f(self, start_rgb, middle_rgb, d):
-        rgb_points = self.ray_points_rgb(start_rgb, middle_rgb, d)
+    def ray_points_uid_f(self, start_rgb, middle_id, d):
+        rgb_points = self.ray_points_rgb_f(start_rgb, middle_id, d)
         if rgb_points.ndim == 1:
             rgb_points = rgb_points[np.newaxis, :]
         return self.multi_rgb2unique_color_id(rgb_points, self.color_space_f)
@@ -122,7 +137,8 @@ class ColorSpace:
 
         range_m_s = np.arange(len(m_s))
         k = preprocessing.normalize(m_s)
-        distance = (key_point[range_m_s, plane_axis] - start_rgb[range_m_s, plane_axis]) / (k[range_m_s, plane_axis] + 0.0001)
+        distance = (key_point[range_m_s, plane_axis] - start_rgb[range_m_s, plane_axis]) / (
+                    k[range_m_s, plane_axis] + 0.0001)
 
         return distance, k
 
@@ -161,7 +177,7 @@ class ColorSpace:
         """
         nearest_id = np.zeros(len(unique_color_id))
 
-        for i, uc_id in enumerate(unique_color_id):   # one unique color
+        for i, uc_id in enumerate(unique_color_id):  # one unique color
             if len(unique_color2id[uc_id]) == 1:
                 n = 0
             else:

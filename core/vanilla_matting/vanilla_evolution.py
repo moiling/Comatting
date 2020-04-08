@@ -47,8 +47,8 @@ def vanilla_evolution(u, data: MattingData, max_fes):
 
         v_random = np.random.rand(round(pop_n / 2))
         d_random = np.random.rand(round(pop_n / 2))
-        v_f[loser] = v_random * v_f[loser] + alpha[winner] * d_random * (f[winner] - f[loser])
-        v_b[loser] = v_random * v_b[loser] + (1 - alpha[winner]) * d_random * (b[winner] - b[loser])
+        v_f[loser] = v_random * v_f[loser] + d_random * (f[winner] - f[loser])
+        v_b[loser] = v_random * v_b[loser] + d_random * (b[winner] - b[loser])
 
         f[loser] = v_f[loser] + f[loser]
         b[loser] = v_b[loser] + b[loser]

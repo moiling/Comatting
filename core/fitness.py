@@ -10,7 +10,7 @@ def rgb2gray(rgb):
     return np.dot(rgb[..., :3], [0.299, 0.587, 0.114])
 
 
-def multi_points_fitness(rgb_f, rgb_b, s_f, s_b, rgb_u, s_u, min_dist_fpu, min_dist_bpu, center_id):
+def multi_points_fitness(rgb_f, rgb_b, s_f, s_b, rgb_u, s_u, min_dist_fpu, min_dist_bpu, center_id, k=50):
     # center_id: [3x3] => 4
     value_axis = rgb_f.ndim - 1
     if value_axis == 1:
@@ -35,7 +35,50 @@ def multi_points_fitness(rgb_f, rgb_b, s_f, s_b, rgb_u, s_u, min_dist_fpu, min_d
     b_error = np.sum(np.sqrt(np.sum(np.square(gray_b[:, center_id][:, None] - gray_b), axis=value_axis - 1)))
     alpha_error = np.sum(np.sqrt(np.sum(np.square(alpha[:, center_id][:, None] - alpha), axis=value_axis - 1)))
     min_error = min(min(f_error, b_error), alpha_error)
-    fitness = fit[:, center_id] + min_error
+    fitness = np.sum(fit, axis=1) + k * min_error
+    return alpha, fitness, cost_c, cost_sf, cost_sb
+
+
+def multi_points_f_b_fitness(rgb_f, rgb_b, s_f, s_b, rgb_u, s_u, min_dist_fpu, min_dist_bpu, center_id, k=50):
+    # center_id: [3x3] => 4
+    value_axis = rgb_f.ndim - 1
+    if value_axis == 1:
+        rgb_f = rgb_f[np.newaxis, :]
+        rgb_b = rgb_b[np.newaxis, :]
+        s_f = s_f[np.newaxis, :]
+        s_b = s_b[np.newaxis, :]
+
+    alpha, fit, cost_c, cost_sf, cost_sb = vanilla_fitness(rgb_f, rgb_b, s_f, s_b, rgb_u, s_u, min_dist_fpu, min_dist_bpu)
+    #
+    #   fit_i = sf_i + sb_i + c_i
+    #         + min(
+    #               \sum_{n \in N_i}||rgb_f_i - rgb_f_n||_2,
+    #               \sum_{n \in N_i}||rgb_b_i - rgb_b_n||_2,
+    #               \sum_{n \in N_i}||\alpha_i - \alpha_n||_2
+    #              )
+    #   *：rgb -> gray [0, 1]
+    #
+    gray_f = rgb2gray(rgb_f) / 255
+    gray_b = rgb2gray(rgb_b) / 255
+    f_error = np.sum(np.sqrt(np.sum(np.square(gray_f[:, center_id][:, None] - gray_f), axis=value_axis - 1)))
+    b_error = np.sum(np.sqrt(np.sum(np.square(gray_b[:, center_id][:, None] - gray_b), axis=value_axis - 1)))
+    # alpha_error = np.sum(np.sqrt(np.sum(np.square(alpha[:, center_id][:, None] - alpha), axis=value_axis - 1)))
+    # min_error = min(min(f_error, b_error), alpha_error)
+    fitness = np.sum(fit, axis=1) + k / 2 * (f_error + b_error)
+    return alpha, fitness, cost_c, cost_sf, cost_sb
+
+
+def multi_points_single_fitness(rgb_f, rgb_b, s_f, s_b, rgb_u, s_u, min_dist_fpu, min_dist_bpu, center_id, k=50):
+    # center_id: [3x3] => 4
+    value_axis = rgb_f.ndim - 1
+    if value_axis == 1:
+        rgb_f = rgb_f[np.newaxis, :]
+        rgb_b = rgb_b[np.newaxis, :]
+        s_f = s_f[np.newaxis, :]
+        s_b = s_b[np.newaxis, :]
+
+    alpha, fit, cost_c, cost_sf, cost_sb = vanilla_fitness(rgb_f, rgb_b, s_f, s_b, rgb_u, s_u, min_dist_fpu, min_dist_bpu)
+    fitness = np.sum(fit, axis=1)
     return alpha, fitness, cost_c, cost_sf, cost_sb
 
 

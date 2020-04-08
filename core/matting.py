@@ -33,6 +33,10 @@ class Method(Enum):
     COLOR_SPACE_B_RAY = 'color_space(ray_b)'
     MULTI_POINTS = 'multi_points_matting'
     MULTI_POINTS_VANILLA = 'multi_vanilla_matting'
+    MULTI_POINTS_FB = 'multi_points_matting(FB)'
+    MULTI_RANDOM = 'multi_random_matting'
+    MULTI_RANDOM_FB = 'multi_random_matting(FB)'
+    MULTI_RANDOM_SINGLE = 'multi_random_matting(single)'
 
 
 class Matting:
@@ -66,6 +70,14 @@ class Matting:
             return self.multi_points_matting(max_fes)
         if func_name == Method.MULTI_POINTS_VANILLA:
             return self.multi_points_matting(max_fes, MultiEvolutionType.VANILLA)
+        if func_name == Method.MULTI_POINTS_FB:
+            return self.multi_points_matting(max_fes, MultiEvolutionType.MIN_FB_RGB)
+        if func_name == Method.MULTI_RANDOM:
+            return self.multi_points_matting(max_fes, MultiEvolutionType.RANDOM_MIN_FB_RGB_ALPHA)
+        if func_name == Method.MULTI_RANDOM_FB:
+            return self.multi_points_matting(max_fes, MultiEvolutionType.RANDOM_FB_RGB)
+        if func_name == Method.MULTI_RANDOM_SINGLE:
+            return self.multi_points_matting(max_fes, MultiEvolutionType.RANDOM_SINGLE)
 
         raise Exception('ERROR: no matting function named {}.'.format(func_name))
 
