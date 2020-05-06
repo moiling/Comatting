@@ -9,10 +9,10 @@ import cv2
 import numpy as np
 from core.matting import Matting, Method
 
-root_path = '/Users/moi/Documents/Code/PycharmProjects/ColorSpaceMatting/data'
-version_name, resize_name = 'v0.8', ''
-func_names = [Method.MULTI_RANDOM, Method.MULTI_RANDOM_FB, Method.MULTI_RANDOM_SINGLE]
-max_fes_list = [1e4]
+root_path = 'C:/Users/moi/Documents/Dataset/Matting/Alpha_Matting/train'
+version_name, resize_name = 'v0.9', ''
+func_names = [Method.MANIFOLD_RANDOM_MATTING]
+max_fes_list = [1e5]
 log_in_method = False
 
 if __name__ == '__main__':
@@ -26,9 +26,9 @@ if __name__ == '__main__':
 
         # for img_name in ['elephant', 'donkey', 'doll', 'net', 'pineapple', 'plant', 'plasticbag', 'troll']:
         for img_name in ['GT{:02d}'.format(i) for i in [1, 4, 5, 13, 14, 16, 18, 21, 24, 25, 27]]:  # selected img
-            img_url = '{}/input_lowres/{}/{}.png'.format(root_path, resize_name, img_name)
-            trimap_url = '{}/trimap_lowres/Trimap1/{}/{}.png'.format(root_path, resize_name, img_name)
-            gt_url = '{}/gt/{}/{}.png'.format(root_path, resize_name, img_name)
+            img_url = '{}/input/low/{}/{}.png'.format(root_path, resize_name, img_name)
+            trimap_url = '{}/trimap/low/Trimap1/{}/{}.png'.format(root_path, resize_name, img_name)
+            gt_url = '{}/gt/low/{}/{}.png'.format(root_path, resize_name, img_name)
             out_url = './out'
             matting = Matting(img_url, trimap_url, img_name, log=log_in_method)
 

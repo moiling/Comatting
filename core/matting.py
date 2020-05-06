@@ -9,6 +9,8 @@ import cv2
 
 from .color_closely_segmentation.color_closely_segmentation import ColorCloselySegmentation
 from .color_space_matting.color_space_matting import ColorSpaceMatting, EvolutionType
+from .manifold_matting import manifold_matting
+from .manifold_matting.manifold_matting import ManifoldMatting
 from .multi_points_matting.multi_points_matting import EvolutionType as MultiEvolutionType
 from .loss import sad_loss, mse_loss
 from .multi_points_matting.multi_points_matting import MultiPointsMatting
@@ -37,15 +39,18 @@ class Method(Enum):
     MULTI_RANDOM = 'multi_random_matting'
     MULTI_RANDOM_FB = 'multi_random_matting(FB)'
     MULTI_RANDOM_SINGLE = 'multi_random_matting(single)'
+    MANIFOLD_MATTING = 'manifold_matting'
+    MANIFOLD_RANDOM_MATTING = 'manifold_matting(random)'
 
 
 class Matting:
     default_max_fes = 1e3
+    default_cluster_size = 1e2
 
     def __init__(self, img_url, trimap_url, img_name='', log=False):
         self.data = MattingData(img_url, trimap_url, img_name, log)
 
-    def matting(self, func_name=Method.COMATTING, max_fes=default_max_fes):
+    def matting(self, func_name=Method.COMATTING, max_fes=default_max_fes, cluster_size=default_cluster_size):
         if func_name == Method.COMATTING:
             return self.comatting(max_fes)
         if func_name == Method.RANDOM:
@@ -78,8 +83,16 @@ class Matting:
             return self.multi_points_matting(max_fes, MultiEvolutionType.RANDOM_FB_RGB)
         if func_name == Method.MULTI_RANDOM_SINGLE:
             return self.multi_points_matting(max_fes, MultiEvolutionType.RANDOM_SINGLE)
+        if func_name == Method.MANIFOLD_MATTING:
+            return self.manifold_matting(max_fes, cluster_size)
+        if func_name == Method.MANIFOLD_RANDOM_MATTING:
+            return self.manifold_matting(max_fes, cluster_size, manifold_matting.EvolutionType.RANDOM)
 
         raise Exception('ERROR: no matting function named {}.'.format(func_name))
+
+    def manifold_matting(self, max_fes=default_max_fes, cluster_size=default_cluster_size, evo_type=manifold_matting.EvolutionType.EVO):
+        ManifoldMatting(self.data).matting(max_fes, cluster_size, evo_type)
+        return self.data.alpha_matte
 
     def multi_points_matting(self, max_fes=default_max_fes, evo_type=MultiEvolutionType.MIN_FB_RGB_ALPHA):
         MultiPointsMatting(self.data).matting(max_fes, evo_type)

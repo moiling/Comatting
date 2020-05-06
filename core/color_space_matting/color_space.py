@@ -72,8 +72,10 @@ class ColorSpace:
         if np.sum(same_color) > 0:
             if self.use_spatial_space:
                 middle_s = self.data.s_u[middle_id]
-                rgb_points[same_color] = self.data.rgb_f[
-                    self.spatial_space.spatial_space_f[middle_s[..., 0], middle_s[..., 1]]]
+                if len(middle_s.shape) > 1:
+                    rgb_points[same_color] = self.data.rgb_f[self.spatial_space.spatial_space_f[middle_s[same_color, 0], middle_s[same_color, 1]]]
+                else:
+                    rgb_points[same_color] = self.data.rgb_f[self.spatial_space.spatial_space_f[middle_s[..., 0], middle_s[..., 1]]]
             else:
                 rgb_points[same_color] = np.random.randint(0, 255, [3])
         return rgb_points.astype(int)
@@ -165,6 +167,34 @@ class ColorSpace:
 
     def u_color2n_id_b(self, unique_color_id, u):
         return self.uid2nid(unique_color_id, self.unique_color2id_b, self.data.s_b, self.data.s_u[u])
+
+    def u_color2n_id_b4multi_u(self, unique_color_id, u_id):
+        unique_color2id = self.unique_color2id_b
+        s = self.data.s_b
+        nearest_id = np.zeros(len(unique_color_id))
+
+        for i, uc_id in enumerate(unique_color_id):  # one unique color
+            if len(unique_color2id[uc_id]) == 1:
+                n = 0
+            else:
+                n = np.argmin(np.sqrt(np.sum(np.square(s[np.array(unique_color2id[uc_id])] - self.data.s_u[u_id[i]]), axis=1)))
+            nearest_id[i] = unique_color2id[uc_id][n]
+
+        return nearest_id.astype(int)
+
+    def u_color2n_id_f4multi_u(self, unique_color_id, u_id):
+        unique_color2id = self.unique_color2id_f
+        s = self.data.s_f
+        nearest_id = np.zeros(len(unique_color_id))
+
+        for i, uc_id in enumerate(unique_color_id):  # one unique color
+            if len(unique_color2id[uc_id]) == 1:
+                n = 0
+            else:
+                n = np.argmin(np.sqrt(np.sum(np.square(s[np.array(unique_color2id[uc_id])] - self.data.s_u[u_id[i]]), axis=1)))
+            nearest_id[i] = unique_color2id[uc_id][n]
+
+        return nearest_id.astype(int)
 
     @staticmethod
     def uid2nid(unique_color_id, unique_color2id, s, s_u):
